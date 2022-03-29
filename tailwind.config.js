@@ -12,15 +12,18 @@ module.exports = {
         '1/7': '14.2857%',
         '1/10': '10%',
         '9/10': '90%',
-        '1/20': '5%',
+        '1/15': '7.5%',
         '110': '28rem',
         '120': '40rem',
       },
       colors: {
         yellow: '#b9ad46'
       },
+      letterSpacing:{
+        widetest: '.20em',
+      },
       fontFamily: {
-        'montserrat': ['Montserrat'],
+        'urbanist': ['Urbanist'],
       },
       fontSize: {
         '2xs': '10px',
