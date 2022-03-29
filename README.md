@@ -4,3 +4,5 @@
 (v2)
 
 This project is a minimalistic mp3 player with visual graphic engine.
+
+In really early stage of development
