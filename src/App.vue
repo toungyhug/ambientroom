@@ -46,7 +46,7 @@
 
 <script>
 import { ref } from "@vue/reactivity"
-import Sound from "../src/assets/Gayle San Brussels 2002.mp3"
+import Sound from "../src/assets/somemusic.mp3"
 
 
 export default {
