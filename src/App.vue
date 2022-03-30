@@ -57,7 +57,7 @@
           class="h-0.5 bg-gray-400 relative bottom-0 left-0 transition rounded-full w-full"
         ></div>
       </div>
-      <audio ref="audioPlayer" @timeupdate="updateAudio()">
+      <audio ref="audioPlayer" @timeupdate="updateAudio()" @ended="endedAudio()">
         <source src="../src/assets/somemusic.mp3" />
       </audio>
       <div class="flex flex-col w-full h-full">
@@ -80,7 +80,6 @@ export default {
     return {
       currentTrackTime: '',
       currentTrackName: '',
-      currentRealTrackTime: '',
       currentTrackMaxTime: "00:00",
       currentTrackPlaying: false,
       currentTrackIsPaused: false,
@@ -103,13 +102,17 @@ export default {
       this.currentTrackIsPaused = true
     },
     updateAudio() {
-      this.currentRealTrackTime = this.$refs.audioPlayer.currentTime
       this.currentTrackTime = Math.floor(this.$refs.audioPlayer.currentTime.toFixed(0))
-      this.currentPlayerTime = (this.currentRealTrackTime / this.currentTrackMaxTime * window.innerWidth).toFixed(0)
+      this.currentPlayerTime = (this.$refs.audioPlayer.currentTime / this.currentTrackMaxTime * window.innerWidth).toFixed(0)
     },
     changeAudio(e) {
       this.$refs.audioPlayer.currentTime = (e.clientX / window.innerWidth * this.currentTrackMaxTime).toFixed(0)
       this.playAudio()
+    },
+    endedAudio() {
+      this.pauseAudio()
+      this.currentTrackTime = ''
+      this.currentPlayerTime = 0;
     }
   },
   setup() {
