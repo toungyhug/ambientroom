@@ -20,7 +20,7 @@ module.exports = {
         yellow: '#b9ad46'
       },
       letterSpacing:{
-        widetest: '.20em',
+        widetest: '.18em',
       },
       fontFamily: {
         'urbanist': ['Urbanist'],
