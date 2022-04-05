@@ -38,6 +38,23 @@
             />
           </div>
           <div
+            class="flex flex-row justify-between items-center w-36 border border-gray-500 rounded-full cursor-default"
+          >
+            <div
+              @click="speedDown()"
+              class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full pr-3 pl-3 cursor-pointer"
+            >
+              <p>-</p>
+            </div>
+            <div>
+              <p @click="speedReset()">{{ currentTrackSpeed }}</p>
+            </div>
+            <div
+              @click="speedUp()"
+              class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full pr-3 pl-3 cursor-pointer"
+            >+</div>
+          </div>
+          <div
             class="w-30 flex justify-center"
           >{{ isNaN(currentTrackMaxTime) ? ("00:00") : (Math.floor(currentTrackMaxTime.toFixed(0) / 60) > 9) ? (Math.floor(currentTrackMaxTime.toFixed(0) / 60)) : ("0" + Math.floor(currentTrackMaxTime.toFixed(0) / 60)) + ":" + ((currentTrackMaxTime.toFixed(0) % 60 > 9) ? (currentTrackMaxTime.toFixed(0) % 60) : ("0" + currentTrackMaxTime.toFixed(0) % 60)) }}</div>
           <div class="w-20 flex justify-center font-semibold">MENU</div>
@@ -83,7 +100,9 @@ export default {
       currentTrackMaxTime: "00:00",
       currentTrackPlaying: false,
       currentTrackIsPaused: false,
+      currentTrackSpeed: 1,
       currentPlayerTime: window.innerWidth,
+      nowa: 0.05,
     }
   },
   mounted() {
@@ -113,7 +132,24 @@ export default {
       this.pauseAudio()
       this.currentTrackTime = ''
       this.currentPlayerTime = 0;
+    },
+    speedDown() {
+      this.currentTrackSpeed = this.currentTrackSpeed - 0.05;
+      this.currentTrackSpeed = this.currentTrackSpeed.toFixed(2);
+      this.currentTrackSpeed = parseFloat(this.currentTrackSpeed);
+      this.$refs.audioPlayer.playbackRate = this.currentTrackSpeed;
+    },
+    speedUp() {
+      this.currentTrackSpeed = this.currentTrackSpeed + 0.05;
+      this.currentTrackSpeed = this.currentTrackSpeed.toFixed(2);
+      this.currentTrackSpeed = parseFloat(this.currentTrackSpeed);
+      this.$refs.audioPlayer.playbackRate = this.currentTrackSpeed;
+    },
+    speedReset() {
+      this.currentTrackSpeed = 1;
+      this.$refs.audioPlayer.playbackRate = this.currentTrackSpeed;
     }
+
   },
   setup() {
   }
