@@ -8,21 +8,50 @@
           class="pl-5 pr-5 w-full h-full flex flex-row items-center text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer"
         >
           <div
-            v-if="currentTrackPlaying === false"
+            v-if="currentTrackPlaying === false && currentTrackIsActive === true"
             @click="playAudio()"
             class="w-20 flex justify-center cursor-pointer font-semibold hover:text-gray-300"
           >PLAY</div>
           <div
-            v-else
+            v-else-if="currentTrackPlaying === true && currentTrackIsActive === true"
             @click="pauseAudio()"
             class="w-20 flex justify-center cursor-pointer font-semibold hover:text-gray-300"
           >PAUSE</div>
           <div
-            class="w-30 flex justify-center"
-          >{{ (Math.floor(currentTrackTime / 60) > 9) ? (Math.floor(currentTrackTime / 60)) : ("0" + Math.floor(currentTrackTime / 60)) + ":" + ((currentTrackTime % 60 > 9) ? (currentTrackTime % 60) : ("0" + currentTrackTime % 60)) }}</div>
-
+            v-else-if="currentTrackIsActive === false"
+            class="w-20 flex justify-center cursor-default font-semibold opacity-90"
+          >
+            <input
+              ref="file"
+              type="file"
+              id="file"
+              @change="handlePath"
+              accept="audio/*"
+              class="w-full h-6 text-xs border-0"
+            />
+          </div>
           <div
-            v-if="currentTrackPlaying === true || currentTrackIsPaused === true"
+            class="w-30 flex justify-center"
+          >{{ (currentTrackTime === null) ? "00:00" : currentTrackTime }}</div>
+          <div
+            @click="changeRepeat()"
+            class="flex flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer"
+          >
+            <div
+              v-if="doRepeat === true"
+              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-green-400 bg-opacity-30 rounded-full"
+            >
+              <p class="text-xs font-normal">repeat</p>
+            </div>
+            <div
+              v-else-if="doRepeat === false"
+              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-red-400 bg-opacity-30 rounded-full"
+            >
+              <p class="text-xs font-normal">repeat</p>
+            </div>
+          </div>
+          <div
+            v-if="currentTrackName !== null"
             @click.self="changeAudio"
             class="w-1/2 flex flex-1 justify-center text-xl tracking-widetest"
           >{{ currentTrackName }}</div>
@@ -38,26 +67,27 @@
             />
           </div>
           <div
-            class="flex flex-row justify-between items-center w-36 border border-gray-500 rounded-full cursor-default"
+            class="flex flex-row justify-between items-center w-30 border border-gray-500 rounded-full cursor-default text-sm"
           >
             <div
               @click="speedDown()"
-              class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full pr-3 pl-3 cursor-pointer"
+              class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full p-0.5 pr-3 pl-3 cursor-pointer"
             >
               <p>-</p>
             </div>
-            <div>
+            <div class="hover:opacity-60 cursor-pointer w-1/2 flex justify-center items-center">
               <p @click="speedReset()">{{ currentTrackSpeed }}</p>
             </div>
             <div
               @click="speedUp()"
-              class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full pr-3 pl-3 cursor-pointer"
+              class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full p-0.5 pr-3 pl-3 cursor-pointer"
             >+</div>
           </div>
+
           <div
             class="w-30 flex justify-center"
-          >{{ isNaN(currentTrackMaxTime) ? ("00:00") : (Math.floor(currentTrackMaxTime.toFixed(0) / 60) > 9) ? (Math.floor(currentTrackMaxTime.toFixed(0) / 60)) : ("0" + Math.floor(currentTrackMaxTime.toFixed(0) / 60)) + ":" + ((currentTrackMaxTime.toFixed(0) % 60 > 9) ? (currentTrackMaxTime.toFixed(0) % 60) : ("0" + currentTrackMaxTime.toFixed(0) % 60)) }}</div>
-          <div class="w-20 flex justify-center font-semibold">MENU</div>
+          >{{ (currentTrackMaxTime === null) ? "00:00" : currentTrackMaxTime }}</div>
+          <div @click="stopAudio()" class="w-20 flex justify-center font-semibold">STOP</div>
         </div>
         <div
           v-if="currentTrackIsPaused === true || currentTrackPlaying === true"
@@ -74,9 +104,7 @@
           class="h-0.5 bg-gray-400 relative bottom-0 left-0 transition rounded-full w-full"
         ></div>
       </div>
-      <audio ref="audioPlayer" @timeupdate="updateAudio()" @ended="endedAudio()">
-        <source src="../src/assets/somemusic.mp3" />
-      </audio>
+      <audio ref="audioPlayer" @timeupdate="updateAudio()" @ended="endedAudio()"></audio>
       <div class="flex flex-col w-full h-full">
         <div class="flex justify-center w-full"></div>
       </div>
@@ -85,7 +113,7 @@
 </template>
 
 <script>
-// import { ref } from "@vue/reactivity"
+import { ref } from "@vue/reactivity"
 
 
 export default {
@@ -93,54 +121,104 @@ export default {
   name: 'App',
   components: {
   },
-  data() {
-    return {
-      currentTrackTime: '',
-      currentTrackName: '',
-      currentTrackMaxTime: "00:00",
-      currentTrackPlaying: false,
-      currentTrackIsPaused: false,
-      currentTrackSpeed: 1,
-      currentPlayerTime: window.innerWidth,
-      nowa: 0.05,
-    }
-  },
-  mounted() {
-  },
   methods: {
+    handlePath(file) {
+      let reader = new FileReader();
+      reader.readAsDataURL(file.target.files[0])
+      reader.onload = () => {
+        this.$refs.audioPlayer.src = reader.result;
+        this.currentTrackName = file.target.files[0].name.replace('.mp3', "")
+        this.currentTrackIsActive = true;
+      }
+    },
     playAudio() {
       this.$refs.audioPlayer.play()
-      this.currentTrackMaxTime = this.$refs.audioPlayer.duration
       this.currentTrackPlaying = true
       this.currentTrackIsPaused = false
-      this.currentTrackName = "Gayle San Brussels 2002"
+      let timeOfTrack = this.$refs.audioPlayer.duration;
+
+      if (Math.floor(timeOfTrack.toFixed(0) / 60) > 9) {
+        if ((timeOfTrack.toFixed(0) % 60 > 9)) {
+          this.currentTrackMaxTime = Math.floor(timeOfTrack.toFixed(0) / 60) + ":" + (timeOfTrack.toFixed(0) % 60)
+        }
+        else {
+          this.currentTrackMaxTime = Math.floor(timeOfTrack.toFixed(0) / 60) + ":" + "0" + (timeOfTrack.toFixed(0) % 60)
+        }
+      }
+      else {
+        if ((timeOfTrack.toFixed(0) % 60 > 9)) {
+          this.currentTrackMaxTime = "0" + Math.floor(timeOfTrack.toFixed(0) / 60) + ":" + (timeOfTrack.toFixed(0) % 60)
+        }
+        else {
+          this.currentTrackMaxTime = "0" + Math.floor(timeOfTrack.toFixed(0) / 60) + ":" + "0" + (timeOfTrack.toFixed(0) % 60)
+        }
+      }
     },
     pauseAudio() {
       this.$refs.audioPlayer.pause()
       this.currentTrackPlaying = false
       this.currentTrackIsPaused = true
     },
+    stopAudio() {
+      this.currentTrackIsActive = false;
+      this.reader = null;
+      this.$refs.audioPlayer.src = null;
+      this.resetInfo()
+    },
     updateAudio() {
-      this.currentTrackTime = Math.floor(this.$refs.audioPlayer.currentTime.toFixed(0))
-      this.currentPlayerTime = (this.$refs.audioPlayer.currentTime / this.currentTrackMaxTime * window.innerWidth).toFixed(0)
+      let timeOfTrack = Math.floor(this.$refs.audioPlayer.currentTime.toFixed(0))
+      this.currentPlayerTime = (this.$refs.audioPlayer.currentTime / this.$refs.audioPlayer.duration * window.innerWidth).toFixed(0)
+
+
+      if (Math.floor(timeOfTrack.toFixed(0) / 60) > 9) {
+        if ((timeOfTrack.toFixed(0) % 60 > 9)) {
+          this.currentTrackTime = Math.floor(timeOfTrack.toFixed(0) / 60) + ":" + (timeOfTrack.toFixed(0) % 60)
+        }
+        else {
+          this.currentTrackTime = Math.floor(timeOfTrack.toFixed(0) / 60) + ":" + "0" + (timeOfTrack.toFixed(0) % 60)
+        }
+      }
+      else {
+        if ((timeOfTrack.toFixed(0) % 60 > 9)) {
+          this.currentTrackTime = "0" + Math.floor(timeOfTrack.toFixed(0) / 60) + ":" + (timeOfTrack.toFixed(0) % 60)
+        }
+        else {
+          this.currentTrackTime = "0" + Math.floor(timeOfTrack.toFixed(0) / 60) + ":" + "0" + (timeOfTrack.toFixed(0) % 60)
+        }
+      }
+
+
     },
     changeAudio(e) {
-      this.$refs.audioPlayer.currentTime = (e.clientX / window.innerWidth * this.currentTrackMaxTime).toFixed(0)
+      this.$refs.audioPlayer.currentTime = (e.clientX / window.innerWidth * this.$refs.audioPlayer.duration).toFixed(0)
       this.playAudio()
     },
     endedAudio() {
-      this.pauseAudio()
-      this.currentTrackTime = ''
-      this.currentPlayerTime = 0;
+      if (this.doRepeat === false) {
+        this.pauseAudio()
+      }
+      else if (this.doRepeat === true) {
+        this.playAudio()
+      }
+
+    },
+    resetInfo() {
+      this.currentTrackTime = "00:00";
+      this.currentTrackName = null;
+      this.currentTrackMaxTime = "00:00";
+      this.currentTrackPlaying = false;
+      this.currentTrackIsPaused = false;
+      this.currentTrackSpeed = 1;
+      this.currentPlayerTime = window.innerWidth;
     },
     speedDown() {
-      this.currentTrackSpeed = this.currentTrackSpeed - 0.05;
+      this.currentTrackSpeed = this.currentTrackSpeed - 0.02;
       this.currentTrackSpeed = this.currentTrackSpeed.toFixed(2);
       this.currentTrackSpeed = parseFloat(this.currentTrackSpeed);
       this.$refs.audioPlayer.playbackRate = this.currentTrackSpeed;
     },
     speedUp() {
-      this.currentTrackSpeed = this.currentTrackSpeed + 0.05;
+      this.currentTrackSpeed = this.currentTrackSpeed + 0.02;
       this.currentTrackSpeed = this.currentTrackSpeed.toFixed(2);
       this.currentTrackSpeed = parseFloat(this.currentTrackSpeed);
       this.$refs.audioPlayer.playbackRate = this.currentTrackSpeed;
@@ -148,10 +226,25 @@ export default {
     speedReset() {
       this.currentTrackSpeed = 1;
       this.$refs.audioPlayer.playbackRate = this.currentTrackSpeed;
+    },
+    changeRepeat() {
+      this.doRepeat = !this.doRepeat;
     }
-
   },
   setup() {
+    const currentTrackTime = ref(null);
+    const currentTrackIsActive = ref(false);
+    const currentTrackName = ref(null);
+    const currentTrackMaxTime = ref(null);
+    const currentTrackPlaying = ref(false);
+    const currentTrackIsPaused = ref(false);
+    const currentTrackSpeed = ref(1);
+    const currentPlayerTime = ref(window.innerWidth);
+    const doRepeat = ref(false)
+
+
+
+    return { currentTrackIsActive, doRepeat, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
   }
 }
 </script>
