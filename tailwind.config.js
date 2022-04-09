@@ -7,8 +7,9 @@ module.exports = {
         'usual-background': "url('../assets/backgrnd.png')",
       },
       spacing: {
-        '30': '7.5rem',
         '76': '19rem',
+        '30': '7.5rem',
+        '22': '5.5rem',
         '1/7': '14.2857%',
         '1/10': '10%',
         '9/10': '90%',

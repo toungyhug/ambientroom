@@ -5,49 +5,47 @@
         <div
           ref="szer"
           @click.self="changeAudio"
-          class="pl-5 pr-5 w-full h-full flex flex-row items-center text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer"
+          class="pl-2 pr-2 w-full h-full flex flex-row items-center text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer"
         >
           <div
-            v-if="currentTrackPlaying === false && currentTrackIsActive === true"
-            @click="playAudio()"
-            class="w-20 flex justify-center cursor-pointer font-semibold hover:text-gray-300"
-          >PLAY</div>
-          <div
-            v-else-if="currentTrackPlaying === true && currentTrackIsActive === true"
-            @click="pauseAudio()"
-            class="w-20 flex justify-center cursor-pointer font-semibold hover:text-gray-300"
-          >PAUSE</div>
-          <div
-            v-else-if="currentTrackIsActive === false"
-            class="w-20 flex justify-center cursor-default font-semibold opacity-90"
-          >
-            <input
-              ref="file"
-              type="file"
-              id="file"
-              @change="handlePath"
-              accept="audio/*"
-              class="w-full h-6 text-xs border-0"
-            />
-          </div>
-          <div
-            class="w-30 flex justify-center"
+            class="w-20 flex justify-center"
           >{{ (currentTrackTime === null) ? "00:00" : currentTrackTime }}</div>
-          <div
-            @click="changeRepeat()"
-            class="flex flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer"
-          >
+          <div class="flex justify-center items-center font-normal mr-2 ml-2 text-2xs">
             <div
-              v-if="doRepeat === true"
-              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-green-400 bg-opacity-30 rounded-full"
+              class="flex w-30 justify-between items-center"
+              v-if="currentTrackPlaying === false && currentTrackIsActive === true"
             >
-              <p class="text-xs font-normal">repeat</p>
+              <div
+                @click="playAudio()"
+                class="flex justify-center items-center cursor-pointer mr-1 border border-gray-300 bg-gray-400 bg-opacity-30 rounded-full p-1 pr-4 pl-4 hover:opacity-80"
+              >PLAY</div>
+              <div
+                @click="stopAudio()"
+                class="flex justify-center items-center ml-1 border border-gray-300 bg-gray-400 bg-opacity-20 rounded-full p-1 pr-4 pl-4 hover:opacity-80"
+              >STOP</div>
             </div>
             <div
-              v-else-if="doRepeat === false"
-              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-red-400 bg-opacity-30 rounded-full"
+              class="flex w-30 justify-between"
+              v-else-if="currentTrackPlaying === true && currentTrackIsActive === true"
             >
-              <p class="text-xs font-normal">repeat</p>
+              <div
+                @click="pauseAudio()"
+                class="flex justify-center items-center cursor-pointer mr-1 border border-gray-300 bg-gray-400 bg-opacity-20 rounded-full p-1 pr-4 pl-4 hover:opacity-80"
+              >PAUSE</div>
+              <div
+                @click="stopAudio()"
+                class="flex justify-center items-center ml-1 border border-gray-300 bg-gray-400 bg-opacity-20 rounded-full p-1 pr-4 pl-4 hover:opacity-80"
+              >STOP</div>
+            </div>
+            <div v-else-if="currentTrackIsActive === false" class="cursor-default opacity-90 w-22">
+              <input
+                ref="file"
+                type="file"
+                id="file"
+                @change="handlePath"
+                accept="audio/*"
+                class="w-full h-full text-sm rounded-full p-0"
+              />
             </div>
           </div>
           <div
@@ -67,7 +65,24 @@
             />
           </div>
           <div
-            class="flex flex-row justify-between items-center w-30 border border-gray-500 rounded-full cursor-default text-sm"
+            @click="changeRepeat()"
+            class="flex flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-3 mr-3"
+          >
+            <div
+              v-if="doRepeat === true"
+              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-green-400 bg-opacity-30 rounded-full"
+            >
+              <p class="text-xs font-normal">repeat</p>
+            </div>
+            <div
+              v-else-if="doRepeat === false"
+              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-red-400 bg-opacity-30 rounded-full"
+            >
+              <p class="text-xs font-normal">repeat</p>
+            </div>
+          </div>
+          <div
+            class="flex flex-row justify-between items-center w-28 border border-gray-500 rounded-full cursor-default text-sm"
           >
             <div
               @click="speedDown()"
@@ -85,9 +100,8 @@
           </div>
 
           <div
-            class="w-30 flex justify-center"
+            class="w-20 flex justify-center items-center"
           >{{ (currentTrackMaxTime === null) ? "00:00" : currentTrackMaxTime }}</div>
-          <div @click="stopAudio()" class="w-20 flex justify-center font-semibold">STOP</div>
         </div>
         <div
           v-if="currentTrackIsPaused === true || currentTrackPlaying === true"
