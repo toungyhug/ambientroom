@@ -46,6 +46,17 @@
               <p class="text-xs font-normal">repeat</p>
             </div>
           </div>
+          <div @click="isPlaylistHandle()"
+            class="flex flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
+            <div v-if="isPlaylist === true"
+              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-green-400 bg-opacity-30 rounded-full">
+              <p class="text-xs font-normal">playlist</p>
+            </div>
+            <div v-else-if="isPlaylist === false"
+              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-red-400 bg-opacity-30 rounded-full">
+              <p class="text-xs font-normal">playlist</p>
+            </div>
+          </div>
           <div
             class="flex flex-row justify-between items-center w-28 border border-gray-500 rounded-full cursor-default text-sm">
             <div @click="speedDown()"
@@ -77,21 +88,21 @@
       <div class="flex flex-col w-full h-full relative">
         <div v-if="isPlaylist"
           class="flex flex-col justify-start items-center w-52 max-h-64 absolute overflow-hidden top-5 right-5 border-2 border-gray-400 border-opacity-90">
-          <div
-            class="flex justify-center items-center w-full  text-gray-300 tracking-widest uppercase text-sm p-0.5 bg-gray-200 bg-opacity-30">
+          <div @click="isPlaylistHandle()"
+            class="flex justify-center items-center w-full text-gray-300 tracking-widest uppercase text-sm p-0.5 bg-gray-200 bg-opacity-30 cursor-pointer">
             Playlist
           </div>
           <div class="overflow-hidden w-52 flex flex-col justify-start items-center pl-5">
             <div class="overflow-y-auto w-56 h-full">
               <div v-for="(track, index) in playlist" :key="index"
                 class="h-full w-full flex flex-col justify-start items-start bg-black bg-opacity-30 ">
-                <div v-if="index === 0" @click="loadAudio()"
+                <div v-if="index === this.currentTrackFromPlaylist" @click="loadAudio()"
                   class="w-full text-2xs flex justify-start items-center p-1  text-gray-300 tracking-wider cursor-pointer bg-gray-400 bg-opacity-30 hover:bg-gray-400 hover:bg-opacity-50">
-                  <p>{{ track }}</p>
+                  <p>{{ track.name }}</p>
                 </div>
-                <div v-else-if="index !== 0"
+                <div v-else-if="index !== this.currentTrackFromPlaylist" @click="playAnotherTrack(track.id)"
                   class="w-full text-2xs flex justify-start items-center p-1   text-gray-300 tracking-wider cursor-pointer hover:bg-gray-400 hover:bg-opacity-50">
-                  <p>{{ track }}</p>
+                  <p>{{ track.name }}</p>
                 </div>
               </div>
             </div>
@@ -112,42 +123,74 @@ export default {
   },
   methods: {
     handlePath(file) {
-      let reader = new FileReader();
-      reader.readAsDataURL(file.target.files[0])
-
-      reader.onload = () => {
-        this.playlist = [];
-        this.$refs.audioPlayer.src = reader.result;
-        this.currentTrackName = file.target.files[0].name.replace('.mp3', "")
-        this.currentTrackIsActive = true;
+      this.playlist = [];
+      let counter = 0;
+      this.currentTrackFromPlaylist = 0;
+      this.currentTrackIsActive = true;
+      if (file.target.files.length > 1) {
         this.isPlaylist = true;
-        this.currentTrackFromPlaylist = 0;
-        for (let i = 0; i < file.target.files.length; i++) {
-          this.playlist.push(file.target.files[i].name.replace('.mp3', ""));
-        }
-
+        this.currentTrackName = "loading..."
       }
+
+
+      for (let i = 0; i < file.target.files.length; i++) {
+        let reader = new FileReader();
+        reader.readAsDataURL(file.target.files[i])
+        reader.onload = () => {
+          counter = counter + 1;
+          this.playlist.push({
+            name: file.target.files[i].name.replace('.mp3', ""),
+            base: reader.result,
+            id: i,
+          });
+          if (counter === file.target.files.length) {
+            setTimeout(() => {
+              this.afterFiles()
+            }, 200)
+          }
+        }
+      }
+    },
+    afterFiles() {
+      this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
+      this.$refs.audioPlayer.src = this.playlist[this.currentTrackFromPlaylist].base;
     },
     playAudio() {
       this.$refs.audioPlayer.play()
       this.currentTrackPlaying = true
       this.currentTrackIsPaused = false
-      let timeOfTrack = this.$refs.audioPlayer.duration;
+      this.calculateMaxTime()
 
-      if (Math.floor(timeOfTrack.toFixed(0) / 60) > 9) {
-        if ((timeOfTrack.toFixed(0) % 60 > 9)) {
-          this.currentTrackMaxTime = Math.floor(timeOfTrack.toFixed(0) / 60) + ":" + (timeOfTrack.toFixed(0) % 60)
+    },
+    playAnotherTrack(id) {
+      for (let i = 0; i < this.playlist.length; i++) {
+        if (id === this.playlist[i].id) {
+          this.currentTrackFromPlaylist = i
+          this.afterFiles()
+          this.loadAudio()
+        }
+      }
+    },
+    isPlaylistHandle() {
+      this.isPlaylist = !this.isPlaylist
+    },
+    calculateMaxTime() {
+      let timeOfMaxTrack = this.$refs.audioPlayer.duration;
+
+      if (Math.floor(timeOfMaxTrack.toFixed(0) / 60) > 9) {
+        if ((timeOfMaxTrack.toFixed(0) % 60 > 9)) {
+          this.currentTrackMaxTime = Math.floor(timeOfMaxTrack.toFixed(0) / 60) + ":" + (timeOfMaxTrack.toFixed(0) % 60)
         }
         else {
-          this.currentTrackMaxTime = Math.floor(timeOfTrack.toFixed(0) / 60) + ":" + "0" + (timeOfTrack.toFixed(0) % 60)
+          this.currentTrackMaxTime = Math.floor(timeOfMaxTrack.toFixed(0) / 60) + ":" + "0" + (timeOfMaxTrack.toFixed(0) % 60)
         }
       }
       else {
-        if ((timeOfTrack.toFixed(0) % 60 > 9)) {
-          this.currentTrackMaxTime = "0" + Math.floor(timeOfTrack.toFixed(0) / 60) + ":" + (timeOfTrack.toFixed(0) % 60)
+        if ((timeOfMaxTrack.toFixed(0) % 60 > 9)) {
+          this.currentTrackMaxTime = "0" + Math.floor(timeOfMaxTrack.toFixed(0) / 60) + ":" + (timeOfMaxTrack.toFixed(0) % 60)
         }
         else {
-          this.currentTrackMaxTime = "0" + Math.floor(timeOfTrack.toFixed(0) / 60) + ":" + "0" + (timeOfTrack.toFixed(0) % 60)
+          this.currentTrackMaxTime = "0" + Math.floor(timeOfMaxTrack.toFixed(0) / 60) + ":" + "0" + (timeOfMaxTrack.toFixed(0) % 60)
         }
       }
     },
@@ -168,8 +211,17 @@ export default {
       this.$refs.audioPlayer.currentTime = 0;
       this.currentTrackPlaying = false
       this.currentTrackIsPaused = true
-      this.updateAudio()
       this.currentPlayerTime = 0;
+      this.updateAudio()
+      setTimeout(() => {
+        this.playAudio()
+      }, 200)
+
+    },
+    nextAudio() {
+      this.$refs.audioPlayer.src = this.playlist[this.currentTrackFromPlaylist].base
+      this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
+      this.loadAudio()
     },
     updateAudio() {
       let timeOfTrack = Math.floor(this.$refs.audioPlayer.currentTime.toFixed(0))
@@ -201,7 +253,14 @@ export default {
     },
     endedAudio() {
       if (this.doRepeat === false) {
-        this.pauseAudio()
+
+        if (this.currentTrackFromPlaylist === this.playlist.length - 1) {
+          this.pauseAudio()
+        }
+        else {
+          this.currentTrackFromPlaylist++
+          this.nextAudio()
+        }
       }
       else if (this.doRepeat === true) {
         this.playAudio()
