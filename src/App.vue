@@ -1,4 +1,4 @@
-<template>
+<template >
   <div class="w-screen h-screen bg-usual-background bg-left-top bg-repeat">
     <div class="flex flex-col w-full h-full">
       <div class="h-1/15 w-full flex flex-col relative shadow-2xl">
@@ -104,10 +104,10 @@
             Playlist
           </div>
           <div class="overflow-hidden w-52 flex flex-col justify-start items-center pl-5">
-            <div class="overflow-y-auto w-56 h-full">
+            <div ref="playlistDiv" @scroll="getScrollPosition" class="overflow-y-auto w-56 h-full">
               <div v-for="(track, index) in playlist" :key="index"
                 class="h-full w-full flex flex-col justify-start items-start bg-black bg-opacity-30 ">
-                <div v-if="index === this.currentTrackFromPlaylist" @click="loadAudio()"
+                <div id="thatTrack" v-if="index === this.currentTrackFromPlaylist" @click="loadAudio()"
                   class="w-full text-2xs flex justify-start items-center p-1  text-gray-300 tracking-wider cursor-pointer bg-gray-400 bg-opacity-30 hover:bg-gray-400 hover:bg-opacity-50">
                   <p>{{ track.name }}</p>
                 </div>
@@ -132,6 +132,7 @@ export default {
   name: 'App',
   components: {
   },
+
   methods: {
     handlePath(file) {
       this.playlist = [];
@@ -183,7 +184,17 @@ export default {
       }
     },
     isPlaylistHandle() {
+
+      if (this.isPlaylist === false && this.playlistScrollPosition > 0) {
+        setTimeout(() => {
+          this.$refs.playlistDiv.scrollTop = this.playlistScrollPosition
+        }, 50)
+
+      }
       this.isPlaylist = !this.isPlaylist
+    },
+    getScrollPosition(e) {
+      this.playlistScrollPosition = e.target.scrollTop
     },
     calculateMaxTime() {
       let timeOfMaxTrack = this.$refs.audioPlayer.duration;
@@ -324,10 +335,11 @@ export default {
     const playlist = ref([])
     const isPlaylist = ref(false)
     const currentTrackFromPlaylist = ref(null)
+    const playlistScrollPosition = ref(0)
 
 
 
-    return { currentTrackIsActive, currentTrackFromPlaylist, doShuffle, isPlaylist, playlist, doRepeat, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
+    return { currentTrackIsActive, playlistScrollPosition, currentTrackFromPlaylist, doShuffle, isPlaylist, playlist, doRepeat, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
   }
 }
 </script>
