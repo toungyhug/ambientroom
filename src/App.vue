@@ -5,8 +5,9 @@
         <div ref="szer" @click.self="changeAudio"
           class="pl-2 pr-2 w-full h-full flex flex-row items-center text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer">
           <div class="w-20 flex justify-center">{{ (currentTrackTime === null) ? "00:00" : currentTrackTime }}</div>
+
           <div class="flex justify-center items-center font-normal mr-2 ml-2 text-2xs">
-            <div class="flex w-30 justify-between items-center"
+            <div class="flex w-36 justify-around items-center "
               v-if="currentTrackPlaying === false && currentTrackIsActive === true">
               <div @click="playAudio()"
                 class="flex justify-center items-center cursor-pointer mr-1 border border-gray-300 bg-gray-400 bg-opacity-30 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
@@ -15,13 +16,13 @@
                 class="flex justify-center items-center ml-1 border border-gray-300 bg-gray-400 bg-opacity-20 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
                 STOP</div>
             </div>
-            <div class="flex w-30 justify-between"
+            <div class="flex w-36 justify-between"
               v-else-if="currentTrackPlaying === true && currentTrackIsActive === true">
               <div @click="pauseAudio()"
-                class="flex justify-center items-center cursor-pointer mr-1 border border-gray-300 bg-gray-400 bg-opacity-20 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
+                class="flex justify-center items-center tracking-widetest cursor-pointer mr-1 border border-gray-500 bg-gray-400 bg-opacity-20 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
                 PAUSE</div>
               <div @click="stopAudio()"
-                class="flex justify-center items-center ml-1 border border-gray-300 bg-gray-400 bg-opacity-20 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
+                class="flex justify-center items-center tracking-widetest ml-1 border border-gray-500 bg-gray-400 bg-opacity-20 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
                 STOP</div>
             </div>
             <div v-else-if="currentTrackIsActive === false"
@@ -30,13 +31,28 @@
                 class="w-22 h-full text-sm rounded-full p-0" />
             </div>
           </div>
+          <div class="w-20 flex justify-center items-center">{{
+            (currentTrackMaxTime === null) ? "00:00" :
+              currentTrackMaxTime
+          }}</div>
           <div v-if="currentTrackName !== null" @click.self="changeAudio"
             class="w-1/2 flex flex-1 justify-center text-xl tracking-widetest">{{ currentTrackName }}</div>
           <div v-else @click.self="changeAudio" class="w-1/2 h-full flex flex-1 justify-center items-center">
             <img class="flex justify-center items-center h-8 m-2" src="../src/assets/logo_pausing_white.svg" alt />
           </div>
+          <div @click="changeShuffle()"
+            class="flex flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
+            <div v-if="doShuffle === true"
+              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-green-400 bg-opacity-30 rounded-full">
+              <p class="text-xs font-normal">shuffle</p>
+            </div>
+            <div v-else-if="doShuffle === false"
+              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-red-400 bg-opacity-30 rounded-full">
+              <p class="text-xs font-normal">shuffle</p>
+            </div>
+          </div>
           <div @click="changeRepeat()"
-            class="flex flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-3 mr-3">
+            class="flex flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
             <div v-if="doRepeat === true"
               class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-green-400 bg-opacity-30 rounded-full">
               <p class="text-xs font-normal">repeat</p>
@@ -69,11 +85,6 @@
             <div @click="speedUp()"
               class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full p-0.5 pr-3 pl-3 cursor-pointer">+</div>
           </div>
-
-          <div class="w-20 flex justify-center items-center">{{
-            (currentTrackMaxTime === null) ? "00:00" :
-              currentTrackMaxTime
-          }}</div>
         </div>
         <div v-if="currentTrackIsPaused === true || currentTrackPlaying === true"
           class="h-0.5 relative bottom-0 left-0 transition rounded-full w-full">
@@ -294,6 +305,9 @@ export default {
     },
     changeRepeat() {
       this.doRepeat = !this.doRepeat;
+    },
+    changeShuffle() {
+      this.doShuffle = !this.doShuffle;
     }
   },
   setup() {
@@ -306,13 +320,14 @@ export default {
     const currentTrackSpeed = ref(1);
     const currentPlayerTime = ref(window.innerWidth);
     const doRepeat = ref(false)
+    const doShuffle = ref(false)
     const playlist = ref([])
     const isPlaylist = ref(false)
     const currentTrackFromPlaylist = ref(null)
 
 
 
-    return { currentTrackIsActive, currentTrackFromPlaylist, isPlaylist, playlist, doRepeat, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
+    return { currentTrackIsActive, currentTrackFromPlaylist, doShuffle, isPlaylist, playlist, doRepeat, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
   }
 }
 </script>
