@@ -9,11 +9,14 @@
           <div class="flex justify-center items-center font-normal mr-2 ml-2 text-2xs">
             <div class="flex w-36 justify-around items-center "
               v-if="currentTrackPlaying === false && currentTrackIsActive === true">
-              <div @click="playAudio()"
-                class="flex justify-center items-center cursor-pointer mr-1 border border-gray-300 bg-gray-400 bg-opacity-30 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
+              <div v-if="ready === true" @click="playAudio()"
+                class="flex justify-center items-center cursor-pointer mr-1 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
+                PLAY</div>
+              <div v-else-if="ready === false"
+                class="flex justify-center items-center cursor-default mr-1 border border-gray-700 bg-gray-700 bg-opacity-30 rounded-full p-1 pr-4 pl-4">
                 PLAY</div>
               <div @click="stopAudio()"
-                class="flex justify-center items-center ml-1 border border-gray-300 bg-gray-400 bg-opacity-20 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
+                class="flex justify-center items-center ml-1 border border-gray-500 bg-gray-400 bg-opacity-20 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
                 STOP</div>
             </div>
             <div class="flex w-36 justify-between"
@@ -40,30 +43,23 @@
           <div v-else @click.self="changeAudio" class="w-1/2 h-full flex flex-1 justify-center items-center">
             <img class="flex justify-center items-center h-8 m-2" src="../src/assets/logo_pausing_white.svg" alt />
           </div>
-          <div @click="changeShuffle()"
-            class="flex flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
-            <div v-if="doShuffle === true"
-              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-green-400 bg-opacity-30 rounded-full">
-              <p class="text-xs font-normal">shuffle</p>
+          <div @click="changeShuffleRepeat()"
+            class="flex w-18 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
+            <div v-if="shuffleRepeat === 0"
+              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-gray-200 bg-opacity-30 rounded-full">
+              <p class="text-xs font-normal">order</p>
             </div>
-            <div v-else-if="doShuffle === false"
-              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-red-400 bg-opacity-30 rounded-full">
-              <p class="text-xs font-normal">shuffle</p>
-            </div>
-          </div>
-          <div @click="changeRepeat()"
-            class="flex flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
-            <div v-if="doRepeat === true"
-              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-green-400 bg-opacity-30 rounded-full">
+            <div v-else-if="shuffleRepeat === 1"
+              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-purple-300 bg-opacity-50 rounded-full">
               <p class="text-xs font-normal">repeat</p>
             </div>
-            <div v-else-if="doRepeat === false"
-              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-red-400 bg-opacity-30 rounded-full">
-              <p class="text-xs font-normal">repeat</p>
+            <div v-else-if="shuffleRepeat === 2"
+              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-yellow bg-opacity-70 rounded-full">
+              <p class="text-xs font-normal">shuffle</p>
             </div>
           </div>
           <div @click="isPlaylistHandle()"
-            class="flex flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
+            class="flex w-18 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
             <div v-if="isPlaylist === true"
               class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-green-400 bg-opacity-30 rounded-full">
               <p class="text-xs font-normal">playlist</p>
@@ -98,21 +94,21 @@
       <audio ref="audioPlayer" @timeupdate="updateAudio()" @ended="endedAudio()"></audio>
       <div class="flex flex-col w-full h-full relative">
         <div v-if="isPlaylist"
-          class="flex flex-col justify-start items-center w-52 max-h-64 absolute overflow-hidden top-5 right-5 border-2 border-gray-400 border-opacity-90">
+          class="flex flex-col justify-start items-center w-52 max-h-96 absolute overflow-hidden top-5 right-5 border-2 border-gray-400 border-opacity-90">
           <div @click="isPlaylistHandle()"
-            class="flex justify-center items-center w-full text-gray-300 tracking-widest uppercase text-sm p-0.5 bg-gray-200 bg-opacity-30 cursor-pointer">
-            Playlist
+            class="flex justify-center items-center w-full text-gray-300 tracking-widest font-medium uppercase text-xs p-0.5 pt-1.5 pb-1.5 bg-gray-200 bg-opacity-30 cursor-pointer">
+            Playlist - {{ playlist.length }} tracks
           </div>
           <div class="overflow-hidden w-52 flex flex-col justify-start items-center pl-5">
             <div ref="playlistDiv" @scroll="getScrollPosition" class="overflow-y-auto w-56 h-full">
               <div v-for="(track, index) in playlist" :key="index"
                 class="h-full w-full flex flex-col justify-start items-start bg-black bg-opacity-30 ">
                 <div id="thatTrack" v-if="index === this.currentTrackFromPlaylist" @click="loadAudio()"
-                  class="w-full text-2xs flex justify-start items-center p-1  text-gray-300 tracking-wider cursor-pointer bg-gray-400 bg-opacity-30 hover:bg-gray-400 hover:bg-opacity-50">
+                  class="w-full text-2xs flex justify-start items-center p-1  text-black tracking-wider cursor-pointer bg-gray-100 bg-opacity-80 hover:bg-opacity-70">
                   <p>{{ track.name }}</p>
                 </div>
                 <div v-else-if="index !== this.currentTrackFromPlaylist" @click="playAnotherTrack(track.id)"
-                  class="w-full text-2xs flex justify-start items-center p-1   text-gray-300 tracking-wider cursor-pointer hover:bg-gray-400 hover:bg-opacity-50">
+                  class="w-full text-2xs flex justify-start items-center p-1  text-gray-300 tracking-wider cursor-pointer hover:bg-gray-300 hover:bg-opacity-10">
                   <p>{{ track.name }}</p>
                 </div>
               </div>
@@ -134,6 +130,7 @@ export default {
   },
 
   methods: {
+
     handlePath(file) {
       this.playlist = [];
       let counter = 0;
@@ -156,7 +153,7 @@ export default {
           if (counter === file.target.files.length) {
             setTimeout(() => {
               this.afterFiles()
-            }, 200)
+            }, 500)
           }
         }
       }
@@ -164,12 +161,13 @@ export default {
     afterFiles() {
       this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
       this.$refs.audioPlayer.src = this.playlist[this.currentTrackFromPlaylist].base;
+      this.ready = true;
     },
     playAudio() {
       this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
-      this.$refs.audioPlayer.play()
       this.currentTrackPlaying = true
       this.currentTrackIsPaused = false
+      this.$refs.audioPlayer.play()
       this.calculateMaxTime()
 
     },
@@ -187,7 +185,6 @@ export default {
         setTimeout(() => {
           this.$refs.playlistDiv.scrollTop = this.playlistScrollPosition
         }, 50)
-
       }
       this.isPlaylist = !this.isPlaylist
     },
@@ -230,6 +227,7 @@ export default {
       this.$refs.audioPlayer.src = null;
       this.isPlaylist = false;
       this.resetInfo()
+      this.ready = false;
     },
     loadAudio() {
       this.currentTrackName = "loading..."
@@ -246,6 +244,12 @@ export default {
 
     },
     nextAudio() {
+      this.playlistScrollPosition = 25 * this.currentTrackFromPlaylist
+      if (this.isPlaylist === true) {
+        setTimeout(() => {
+          this.$refs.playlistDiv.scrollTop = this.playlistScrollPosition
+        }, 50)
+      }
       this.$refs.audioPlayer.src = this.playlist[this.currentTrackFromPlaylist].base
       this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
       this.loadAudio()
@@ -276,28 +280,36 @@ export default {
           this.currentTrackTime = "0" + Math.floor(timeOfTrack.toFixed(0) / 60) + ":" + "0" + (timeOfTrack.toFixed(0) % 60)
         }
       }
-
-
     },
     changeAudio(e) {
       this.$refs.audioPlayer.currentTime = (e.clientX / window.innerWidth * this.$refs.audioPlayer.duration).toFixed(0)
       this.playAudio()
     },
     endedAudio() {
-      if (this.doRepeat === false) {
+      if (this.shuffleRepeat !== 1) {
+        if (this.shuffleRepeat === 2) {
+          let randomNumber = Math.floor(Math.random() * ((this.playlist.length) - 0 + 1) + 0);
+          if (this.currentTrackFromPlaylist === randomNumber) {
+            this.endedAudio()
+          } else {
+            this.currentTrackFromPlaylist = randomNumber
+            this.nextAudio()
+          }
+        }
+        else if (this.shuffleRepeat === 0) {
+          if (this.currentTrackFromPlaylist === this.playlist.length - 1) {
+            this.pauseAudio()
+          }
+          else {
+            this.currentTrackFromPlaylist++
+            this.nextAudio()
+          }
+        }
 
-        if (this.currentTrackFromPlaylist === this.playlist.length - 1) {
-          this.pauseAudio()
-        }
-        else {
-          this.currentTrackFromPlaylist++
-          this.nextAudio()
-        }
       }
-      else if (this.doRepeat === true) {
+      else if (this.shuffleRepeat === 1) {
         this.playAudio()
       }
-
     },
     resetInfo() {
       this.currentTrackTime = "00:00";
@@ -324,14 +336,15 @@ export default {
       this.currentTrackSpeed = 1;
       this.$refs.audioPlayer.playbackRate = this.currentTrackSpeed;
     },
-    changeRepeat() {
-      this.doRepeat = !this.doRepeat;
+    changeShuffleRepeat() {
+      this.shuffleRepeat++;
+      if (this.shuffleRepeat === 3) {
+        this.shuffleRepeat = 0;
+      }
     },
-    changeShuffle() {
-      this.doShuffle = !this.doShuffle;
-    }
   },
   setup() {
+    const ready = ref(false);
     const currentTrackTime = ref(null);
     const currentTrackIsActive = ref(false);
     const currentTrackName = ref(null);
@@ -341,8 +354,7 @@ export default {
     const currentTrackIsPaused = ref(false);
     const currentTrackSpeed = ref(1);
     const currentPlayerTime = ref(window.innerWidth);
-    const doRepeat = ref(false)
-    const doShuffle = ref(false)
+    const shuffleRepeat = ref(0)
     const playlist = ref([])
     const isPlaylist = ref(false)
     const currentTrackFromPlaylist = ref(null)
@@ -350,7 +362,7 @@ export default {
 
 
 
-    return { currentTrackIsActive, currentTrackMaxTimeReal, playlistScrollPosition, currentTrackFromPlaylist, doShuffle, isPlaylist, playlist, doRepeat, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
+    return { ready, currentTrackIsActive, currentTrackMaxTimeReal, playlistScrollPosition, currentTrackFromPlaylist, shuffleRepeat, isPlaylist, playlist, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
   }
 }
 </script>
