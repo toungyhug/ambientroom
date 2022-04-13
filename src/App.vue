@@ -143,8 +143,6 @@ export default {
         this.isPlaylist = true;
         this.currentTrackName = "loading..."
       }
-
-
       for (let i = 0; i < file.target.files.length; i++) {
         let reader = new FileReader();
         reader.readAsDataURL(file.target.files[i])
@@ -168,6 +166,7 @@ export default {
       this.$refs.audioPlayer.src = this.playlist[this.currentTrackFromPlaylist].base;
     },
     playAudio() {
+      this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
       this.$refs.audioPlayer.play()
       this.currentTrackPlaying = true
       this.currentTrackIsPaused = false
@@ -184,7 +183,6 @@ export default {
       }
     },
     isPlaylistHandle() {
-
       if (this.isPlaylist === false && this.playlistScrollPosition > 0) {
         setTimeout(() => {
           this.$refs.playlistDiv.scrollTop = this.playlistScrollPosition
@@ -197,22 +195,27 @@ export default {
       this.playlistScrollPosition = e.target.scrollTop
     },
     calculateMaxTime() {
-      let timeOfMaxTrack = this.$refs.audioPlayer.duration;
-
-      if (Math.floor(timeOfMaxTrack.toFixed(0) / 60) > 9) {
-        if ((timeOfMaxTrack.toFixed(0) % 60 > 9)) {
-          this.currentTrackMaxTime = Math.floor(timeOfMaxTrack.toFixed(0) / 60) + ":" + (timeOfMaxTrack.toFixed(0) % 60)
-        }
-        else {
-          this.currentTrackMaxTime = Math.floor(timeOfMaxTrack.toFixed(0) / 60) + ":" + "0" + (timeOfMaxTrack.toFixed(0) % 60)
-        }
+      this.currentTrackMaxTimeReal = this.$refs.audioPlayer.duration;
+      if (isNaN(this.currentTrackMaxTimeReal)) {
+        this.currentTrackMaxTime = "loading.."
       }
       else {
-        if ((timeOfMaxTrack.toFixed(0) % 60 > 9)) {
-          this.currentTrackMaxTime = "0" + Math.floor(timeOfMaxTrack.toFixed(0) / 60) + ":" + (timeOfMaxTrack.toFixed(0) % 60)
+
+        if (Math.floor(this.currentTrackMaxTimeReal.toFixed(0) / 60) > 9) {
+          if ((this.currentTrackMaxTimeReal.toFixed(0) % 60 > 9)) {
+            this.currentTrackMaxTime = Math.floor(this.currentTrackMaxTimeReal.toFixed(0) / 60) + ":" + (this.currentTrackMaxTimeReal.toFixed(0) % 60)
+          }
+          else {
+            this.currentTrackMaxTime = Math.floor(this.currentTrackMaxTimeReal.toFixed(0) / 60) + ":" + "0" + (this.currentTrackMaxTimeReal.toFixed(0) % 60)
+          }
         }
         else {
-          this.currentTrackMaxTime = "0" + Math.floor(timeOfMaxTrack.toFixed(0) / 60) + ":" + "0" + (timeOfMaxTrack.toFixed(0) % 60)
+          if ((this.currentTrackMaxTimeReal.toFixed(0) % 60 > 9)) {
+            this.currentTrackMaxTime = "0" + Math.floor(this.currentTrackMaxTimeReal.toFixed(0) / 60) + ":" + (this.currentTrackMaxTimeReal.toFixed(0) % 60)
+          }
+          else {
+            this.currentTrackMaxTime = "0" + Math.floor(this.currentTrackMaxTimeReal.toFixed(0) / 60) + ":" + "0" + (this.currentTrackMaxTimeReal.toFixed(0) % 60)
+          }
         }
       }
     },
@@ -229,15 +232,17 @@ export default {
       this.resetInfo()
     },
     loadAudio() {
+      this.currentTrackName = "loading..."
       this.$refs.audioPlayer.load()
       this.$refs.audioPlayer.currentTime = 0;
       this.currentTrackPlaying = false
       this.currentTrackIsPaused = true
       this.currentPlayerTime = 0;
+
       this.updateAudio()
       setTimeout(() => {
         this.playAudio()
-      }, 200)
+      }, 500)
 
     },
     nextAudio() {
@@ -246,6 +251,11 @@ export default {
       this.loadAudio()
     },
     updateAudio() {
+      if (isNaN(this.currentTrackMaxTimeReal)) {
+        setTimeout(() => {
+          this.calculateMaxTime()
+        }, 500)
+      }
       let timeOfTrack = Math.floor(this.$refs.audioPlayer.currentTime.toFixed(0))
       this.currentPlayerTime = (this.$refs.audioPlayer.currentTime / this.$refs.audioPlayer.duration * window.innerWidth).toFixed(0)
 
@@ -326,6 +336,7 @@ export default {
     const currentTrackIsActive = ref(false);
     const currentTrackName = ref(null);
     const currentTrackMaxTime = ref(null);
+    const currentTrackMaxTimeReal = ref(null);
     const currentTrackPlaying = ref(false);
     const currentTrackIsPaused = ref(false);
     const currentTrackSpeed = ref(1);
@@ -339,7 +350,7 @@ export default {
 
 
 
-    return { currentTrackIsActive, playlistScrollPosition, currentTrackFromPlaylist, doShuffle, isPlaylist, playlist, doRepeat, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
+    return { currentTrackIsActive, currentTrackMaxTimeReal, playlistScrollPosition, currentTrackFromPlaylist, doShuffle, isPlaylist, playlist, doRepeat, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
   }
 }
 </script>
