@@ -5,6 +5,7 @@ module.exports = {
     extend: {
       backgroundImage:{
         'usual-background': "url('../assets/backgrnd.png')",
+        'seek': "url('../assets/seek.gif')",
       },
       spacing: {
         '76': '19rem',

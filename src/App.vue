@@ -1,5 +1,6 @@
 <template >
-  <div class="w-screen h-screen bg-usual-background bg-left-top bg-repeat">
+  <div @keyup.up="volumeUp" @keyup.down="volumeDown" @keyup.right="seekUp" @keyup.left="seekDown" tabindex="0"
+    class="w-screen h-screen bg-usual-background bg-left-top bg-repeat">
     <div class="flex flex-col w-full h-full">
       <div class="h-1/15 w-full flex flex-col relative shadow-2xl">
         <div ref="szer" @click.self="changeAudio"
@@ -38,10 +39,15 @@
             (currentTrackMaxTime === null) ? "00:00" :
               currentTrackMaxTime
           }}</div>
-          <div v-if="currentTrackName !== null" @click.self="changeAudio"
-            class="w-1/2 flex flex-1 justify-center text-xl tracking-widetest">{{ currentTrackName }}</div>
-          <div v-else @click.self="changeAudio" class="w-1/2 h-full flex flex-1 justify-center items-center">
-            <img class="flex justify-center items-center h-8 m-2" src="../src/assets/logo_pausing_white.svg" alt />
+          <div class="w-1/2 flex flex-1 justify-center items-center" @click.self="changeAudio">
+            <div v-if="currentTrackName !== null" @click.self="changeAudio"
+              class="justify-center text-xl tracking-widest bg-gray-300 bg-opacity-70  pl-10 pr-10 text-black text-opacity-90 font-medium"
+              :style="{ 'opacity': currentTrackVolume * 100 + '%' }">{{
+                currentTrackName
+              }}</div>
+            <div v-else @click.self="changeAudio" class="w-1/2 h-full flex flex-1 justify-center items-center">
+              <img class="flex justify-center items-center h-8 m-2" src="../src/assets/logo_pausing_white.svg" alt />
+            </div>
           </div>
           <div @click="changeShuffleRepeat()"
             class="flex w-18 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
@@ -83,10 +89,9 @@
           </div>
         </div>
         <div v-if="currentTrackIsPaused === true || currentTrackPlaying === true"
-          class="h-0.5 relative bottom-0 left-0 transition rounded-full w-full">
-          <div class="h-0.5 absolute bottom-0 left-0 transition rounded-full"
-            :style="{ 'width': currentPlayerTime + 'px' }"
-            style="background-image: linear-gradient(to right, #d2b7fa 10% , #b9ad46 30%,#b9ad46 60%, #ff99bb 100%); background-size: 1920px 100%; ">
+          class="h-0.5 relative bottom-0 left-0 transition rounded-full w-full ">
+          <div class="h-0.5 absolute bottom-0 left-0 transition rounded-full bg-seek bg-bottom bg-auto"
+            :style="{ 'width': currentPlayerTime + 'px' }">
           </div>
         </div>
         <div v-else class="h-0.5 bg-gray-400 relative bottom-0 left-0 transition rounded-full w-full"></div>
@@ -243,6 +248,28 @@ export default {
       }, 500)
 
     },
+    seekUp() {
+      this.$refs.audioPlayer.currentTime = this.$refs.audioPlayer.currentTime + 5;
+    },
+    seekDown() {
+      this.$refs.audioPlayer.currentTime = this.$refs.audioPlayer.currentTime - 5;
+    },
+    volumeUp() {
+      if (this.currentTrackVolume !== 1) {
+        this.currentTrackVolume = this.currentTrackVolume + 0.2;
+        this.currentTrackVolume = this.currentTrackVolume.toFixed(1);
+        this.currentTrackVolume = parseFloat(this.currentTrackVolume);
+        this.$refs.audioPlayer.volume = this.currentTrackVolume;
+      }
+    },
+    volumeDown() {
+      if (this.currentTrackVolume !== 0) {
+        this.currentTrackVolume = this.currentTrackVolume - 0.2;
+        this.currentTrackVolume = this.currentTrackVolume.toFixed(1);
+        this.currentTrackVolume = parseFloat(this.currentTrackVolume);
+        this.$refs.audioPlayer.volume = this.currentTrackVolume;
+      }
+    },
     nextAudio() {
       this.playlistScrollPosition = 25 * this.currentTrackFromPlaylist
       if (this.isPlaylist === true) {
@@ -353,6 +380,7 @@ export default {
     const currentTrackPlaying = ref(false);
     const currentTrackIsPaused = ref(false);
     const currentTrackSpeed = ref(1);
+    const currentTrackVolume = ref(1);
     const currentPlayerTime = ref(window.innerWidth);
     const shuffleRepeat = ref(0)
     const playlist = ref([])
@@ -362,7 +390,7 @@ export default {
 
 
 
-    return { ready, currentTrackIsActive, currentTrackMaxTimeReal, playlistScrollPosition, currentTrackFromPlaylist, shuffleRepeat, isPlaylist, playlist, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
+    return { ready, currentTrackIsActive, currentTrackVolume, currentTrackMaxTimeReal, playlistScrollPosition, currentTrackFromPlaylist, shuffleRepeat, isPlaylist, playlist, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
   }
 }
 </script>
