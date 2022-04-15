@@ -2,7 +2,7 @@
   <div @keyup.up="volumeUp" @keyup.down="volumeDown" @keyup.right="seekUp" @keyup.left="seekDown" tabindex="0"
     class="w-screen h-screen bg-usual-background bg-left-top bg-repeat">
     <div class="flex flex-col w-full h-full">
-      <div class="h-1/15 w-full flex flex-col relative shadow-2xl">
+      <div class="h-1/15 w-full flex flex-col relative shadow-2xl select-none">
         <div ref="szer" @click.self="changeAudio"
           class="pl-2 pr-2 w-full h-full flex flex-row items-center text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer">
           <div class="w-20 flex justify-center">{{ (currentTrackTime === null) ? "00:00" : currentTrackTime }}</div>
@@ -41,7 +41,7 @@
           }}</div>
           <div class="w-1/2 flex flex-1 justify-center items-center" @click.self="changeAudio">
             <div v-if="currentTrackName !== null" @click.self="changeAudio"
-              class="justify-center text-xl tracking-widest bg-gray-300 bg-opacity-70  pl-10 pr-10 text-black text-opacity-90 font-medium"
+              class="justify-center text-xl tracking-widest bg-gray-200 bg-opacity-70 pl-10 pr-10 text-black text-opacity-70 font-semibold font-cinzel"
               :style="{ 'opacity': currentTrackVolume * 100 + '%' }">{{
                 currentTrackName
               }}</div>
@@ -65,7 +65,7 @@
             </div>
           </div>
           <div @click="isPlaylistHandle()"
-            class="flex w-18 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
+            class="flex w-18 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-2">
             <div v-if="isPlaylist === true"
               class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-green-400 bg-opacity-30 rounded-full">
               <p class="text-xs font-normal">playlist</p>
@@ -76,7 +76,7 @@
             </div>
           </div>
           <div
-            class="flex flex-row justify-between items-center w-28 border border-gray-500 rounded-full cursor-default text-sm">
+            class="flex flex-row justify-between items-center w-28 mr-1 ml-1 border border-gray-500 rounded-full cursor-default text-sm">
             <div @click="speedDown()"
               class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full p-0.5 pr-3 pl-3 cursor-pointer">
               <p>-</p>
@@ -86,6 +86,17 @@
             </div>
             <div @click="speedUp()"
               class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full p-0.5 pr-3 pl-3 cursor-pointer">+</div>
+          </div>
+          <div class="w-16 h-full flex p-1.5 pt-3.5 pb-3.5 mr-1 ml-1" @click.self="changeAudio">
+            <div class="w-full  bg-gray-300 bg-opacity-20 flex items-end">
+              <div class="w-full bg-gray-400 bg-opacity-60" :style="{ 'height': (eqLine1 - 80) + '%' }">
+              </div>
+              <div class="w-full bg-gray-400 bg-opacity-80" :style="{ 'height': (eqLine2 - 50) + '%' }">
+              </div>
+              <div class="w-full bg-gray-400" :style="{ 'height': (eqLine3 - 60) + '%' }">
+              </div>
+            </div>
+
           </div>
         </div>
         <div v-if="currentTrackIsPaused === true || currentTrackPlaying === true"
@@ -149,8 +160,9 @@ export default {
       this.currentTrackIsActive = true;
       if (file.target.files.length > 1) {
         this.isPlaylist = true;
-        this.currentTrackName = "loading..."
+
       }
+      this.currentTrackName = "loading..."
       for (let i = 0; i < file.target.files.length; i++) {
         let reader = new FileReader();
         reader.readAsDataURL(file.target.files[i])
@@ -173,6 +185,24 @@ export default {
       this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
       this.$refs.audioPlayer.src = this.playlist[this.currentTrackFromPlaylist].base;
       this.ready = true;
+      if (this.oneStart === false) {
+        this.eq()
+        this.oneStart = true
+      }
+
+    },
+    eq() {
+      this.audioSource = this.audioctx.createMediaElementSource(this.$refs.audioPlayer);
+      this.analyser = this.audioctx.createAnalyser();
+      this.audioSource.connect(this.analyser)
+      this.analyser.connect(this.audioctx.destination)
+      this.analyser.fftSize = 64;
+      this.bufferLength = this.analyser.frequencyBinCount;
+      this.data = new Uint8Array(this.bufferLength);
+      this.analyser.getByteFrequencyData(this.data)
+      setInterval(() => {
+        this.eqCalculate()
+      }, 1)
     },
     playAudio() {
       this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
@@ -180,7 +210,6 @@ export default {
       this.currentTrackIsPaused = false
       this.$refs.audioPlayer.play()
       this.calculateMaxTime()
-
     },
     playAnotherTrack(id) {
       for (let i = 0; i < this.playlist.length; i++) {
@@ -287,6 +316,12 @@ export default {
       this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
       this.loadAudio()
     },
+    eqCalculate() {
+      this.analyser.getByteFrequencyData(this.data)
+      this.eqLine1 = ((this.data[3]) / 1.5);
+      this.eqLine2 = (this.data[5]) / 1.7;
+      this.eqLine3 = (this.data[7]) / 1.7;
+    },
     updateAudio() {
       if (isNaN(this.currentTrackMaxTimeReal)) {
         setTimeout(() => {
@@ -384,6 +419,7 @@ export default {
   },
   setup() {
     const ready = ref(false);
+    const oneStart = ref(false)
     const currentTrackTime = ref(null);
     const currentTrackIsActive = ref(false);
     const currentTrackName = ref(null);
@@ -394,15 +430,22 @@ export default {
     const currentTrackSpeed = ref(1);
     const currentTrackVolume = ref(1);
     const currentPlayerTime = ref(window.innerWidth);
-    const shuffleRepeat = ref(0)
-    const playlist = ref([])
-    const isPlaylist = ref(false)
-    const currentTrackFromPlaylist = ref(null)
-    const playlistScrollPosition = ref(0)
+    const shuffleRepeat = ref(0);
+    const playlist = ref([]);
+    const isPlaylist = ref(false);
+    const currentTrackFromPlaylist = ref(null);
+    const playlistScrollPosition = ref(0);
+    const eqLine1 = ref(0)
+    const eqLine2 = ref(0)
+    const eqLine3 = ref(0)
+    let audioctx = new AudioContext()
+    let audioSource;
+    let analyser;
+    let bufferLength;
+    let data;
 
 
-
-    return { ready, currentTrackIsActive, currentTrackVolume, currentTrackMaxTimeReal, playlistScrollPosition, currentTrackFromPlaylist, shuffleRepeat, isPlaylist, playlist, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
+    return { oneStart, eqLine1, eqLine2, eqLine3, audioSource, data, audioctx, analyser, bufferLength, ready, currentTrackIsActive, currentTrackVolume, currentTrackMaxTimeReal, playlistScrollPosition, currentTrackFromPlaylist, shuffleRepeat, isPlaylist, playlist, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
   }
 }
 </script>

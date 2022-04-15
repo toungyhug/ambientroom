@@ -27,6 +27,7 @@ module.exports = {
       },
       fontFamily: {
         'urbanist': ['Urbanist'],
+        'cinzel': ['Cinzel'],
       },
       fontSize: {
         '2xs': '10px',
