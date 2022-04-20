@@ -87,19 +87,18 @@
             <div @click="speedUp()"
               class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full p-0.5 pr-3 pl-3 cursor-pointer">+</div>
           </div>
-          <div class="w-24 h-full flex p-1.5 pt-3.5 pb-3.5 mr-1 ml-2" @click.self="changeAudio">
-            <div :style="{ 'opacity': currentTrackVolume * 100 + '%' }" class="w-full bg-eq bg-center h-full bg-120% ">
-              <div class="w-full h-full bg-grayy bg-opacity-40 flex items-end ">
-                <div class="w-full bg-gray-300 bg-opacity-90 mr-px" :style="{ 'height': (eqLine1 - 70) + '%' }">
-                </div>
-                <div class="w-full bg-gray-300 bg-opacity-90 mr-px" :style="{ 'height': (eqLine2 - 70) + '%' }">
-                </div>
-                <div class="w-full bg-gray-300 bg-opacity-90 mr-px" :style="{ 'height': (eqLine3 - 70) + '%' }">
-                </div>
-                <div class="w-full bg-gray-300 bg-opacity-90 mr-px" :style="{ 'height': (eqLine4 - 70) + '%' }">
-                </div>
-                <div class="w-full bg-gray-300 bg-opacity-90" :style="{ 'height': (eqLine5 - 70) + '%' }">
-                </div>
+          <div class="w-24 h-full flex p-1.5 pt-4 pb-4 mr-1 ml-2" @click.self="changeAudio">
+            <div :style="{ 'opacity': currentTrackVolume * 100 + '%' }"
+              class="w-full h-full bg-gradient-to-tr from-grayy to-grayymore flex items-end">
+              <div class="w-full bg-gray-300 bg-opacity-70 mr-px" :style="{ 'height': (eqLine1 - 70) + '%' }">
+              </div>
+              <div class="w-full bg-gray-300 bg-opacity-70 mr-px" :style="{ 'height': (eqLine2 - 70) + '%' }">
+              </div>
+              <div class="w-full bg-gray-300 bg-opacity-70 mr-px" :style="{ 'height': (eqLine3 - 70) + '%' }">
+              </div>
+              <div class="w-full bg-gray-300 bg-opacity-70 mr-px" :style="{ 'height': (eqLine4 - 70) + '%' }">
+              </div>
+              <div class="w-full bg-gray-300 bg-opacity-70" :style="{ 'height': (eqLine5 - 70) + '%' }">
               </div>
             </div>
           </div>
