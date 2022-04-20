@@ -3,9 +3,17 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
+      opacity: {
+        '85': '85%',
+        '95': '95%'
+      },
       backgroundImage:{
         'usual-background': "url('../assets/backgrnd.png')",
         'seek': "url('../assets/seek.gif')",
+        'eq': "url('../assets/eq.gif')",
+      },
+      backgroundSize:{
+        '120%': '120%',
       },
       spacing: {
         '76': '19rem',
@@ -20,7 +28,9 @@ module.exports = {
         '120': '40rem',
       },
       colors: {
-        yellow: '#b9ad46'
+        yellow: '#b9ad46',
+        grayy: '#353535',
+        grayymore: '#494949'
       },
       letterSpacing:{
         widetest: '.18em',
