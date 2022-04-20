@@ -154,6 +154,7 @@ export default {
   methods: {
 
     handlePath(file) {
+      this.audioctx = new AudioContext()
       this.playlist = [];
       let counter = 0;
       this.currentTrackFromPlaylist = 0;
@@ -180,6 +181,7 @@ export default {
           }
         }
       }
+
     },
     afterFiles() {
       this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
@@ -361,7 +363,6 @@ export default {
           }
           else {
             let randomNumber = Math.floor(Math.random() * ((this.playlist.length) - 0 + 1) + 0);
-            console.log(randomNumber, this.currentTrackFromPlaylist)
             if (this.currentTrackFromPlaylist === randomNumber) {
               this.endedAudio()
             } else {
@@ -438,7 +439,7 @@ export default {
     const eqLine1 = ref(0)
     const eqLine2 = ref(0)
     const eqLine3 = ref(0)
-    let audioctx = new AudioContext()
+    let audioctx;
     let audioSource;
     let analyser;
     let bufferLength;
