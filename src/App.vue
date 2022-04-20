@@ -1,12 +1,11 @@
-<template >
+<template>
   <div @keyup.up="volumeUp" @keyup.down="volumeDown" @keyup.right="seekUp" @keyup.left="seekDown" tabindex="0"
-    class="w-screen h-screen bg-usual-background bg-left-top bg-repeat">
+    class="w-screen h-screen bg-usual-background bg-left-top bg-repeat select-none">
     <div class="flex flex-col w-full h-full">
-      <div class="h-1/15 w-full flex flex-col relative shadow-2xl select-none">
+      <div class="h-1/15 w-full flex flex-col relative shadow-2xl">
         <div ref="szer" @click.self="changeAudio"
           class="pl-2 pr-2 w-full h-full flex flex-row items-center text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer">
           <div class="w-20 flex justify-center">{{ (currentTrackTime === null) ? "00:00" : currentTrackTime }}</div>
-
           <div class="flex justify-center items-center font-normal mr-2 ml-2 text-2xs">
             <div class="flex w-36 justify-around items-center "
               v-if="currentTrackPlaying === false && currentTrackIsActive === true">
@@ -31,8 +30,12 @@
             </div>
             <div v-else-if="currentTrackIsActive === false"
               class="cursor-default opacity-90 w-22 h-6 flex justify-center items-center">
-              <input ref="file" type="file" id="file" multiple @change="handlePath" accept="audio/*"
-                class="w-22 h-full text-sm rounded-full p-0" />
+              <div
+                class="text-xs font-normal relative w-22 h-full p-1 pr-3 pl-3 flex justify-center items-center bg-gray-200 bg-opacity-30 rounded-full hover:bg-opacity-40 cursor-pointer">
+                choose
+                <input ref="file" id="file" type="file" multiple @change="handlePath" accept="audio/*"
+                  class="text-sm rounded-full p-0 absolute opacity-0 cursor-pointer" />
+              </div>
             </div>
           </div>
           <div class="w-20 flex justify-center items-center">{{
@@ -116,13 +119,14 @@
         <div v-if="isPlaylist"
           class="flex flex-col justify-start items-center w-52 max-h-96 absolute overflow-hidden top-5 right-5 border-2 border-gray-400 border-opacity-90">
           <div
-            class="flex justify-between items-center w-full h-8 text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-200 bg-opacity-30 cursor-pointer">
+            class="flex flex-shrink-0 justify-between items-center w-full h-7 text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-200 bg-opacity-30 cursor-pointer">
             <div class="ml-1" @click="isPlaylistHandle()">
               Playlist - {{ playlist.length }} tracks
             </div>
             <div
-              class="pr-2 pl-2 bg-green-500 bg-opacity-30 border-l border-gray-400 h-full w-10 text-sm hover:bg-opacity-50 cursor-pointer flex justify-center items-center">
-              +
+              class="relative pr-2 pl-2 bg-green-500 bg-opacity-30 border-l border-gray-400 h-full w-10 text-sm hover:bg-opacity-50 cursor-pointer flex justify-center items-center">
+              +<input ref="file" id="file" type="file" multiple @change="handlePathAdd" accept="audio/*"
+                class="absolute opacity-0 cursor-pointer left-0" />
             </div>
           </div>
           <div class="overflow-hidden w-52 flex flex-col justify-start items-center pl-5">
@@ -156,7 +160,28 @@ export default {
   },
 
   methods: {
-
+    handlePathAdd(file) {
+      this.currentTrackName = "loading..."
+      let counter = 0;
+      let playlistLength = this.playlist.length;
+      for (let i = 0; i < file.target.files.length; i++) {
+        let reader = new FileReader();
+        reader.readAsDataURL(file.target.files[i])
+        reader.onload = () => {
+          counter = counter + 1;
+          this.playlist.push({
+            name: file.target.files[i].name.replace('.mp3', ""),
+            base: reader.result,
+            id: (playlistLength + i),
+          });
+          if (counter === file.target.files.length) {
+            setTimeout(() => {
+              this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
+            }, 500)
+          }
+        }
+      }
+    },
     handlePath(file) {
       this.audioctx = new AudioContext()
       this.playlist = [];
@@ -165,7 +190,6 @@ export default {
       this.currentTrackIsActive = true;
       if (file.target.files.length > 1) {
         this.isPlaylist = true;
-
       }
       this.currentTrackName = "loading..."
       for (let i = 0; i < file.target.files.length; i++) {
@@ -195,7 +219,6 @@ export default {
         this.eq()
         this.oneStart = true
       }
-
     },
     eq() {
       this.audioSource = this.audioctx.createMediaElementSource(this.$refs.audioPlayer);
@@ -208,7 +231,7 @@ export default {
       this.analyser.getByteFrequencyData(this.data)
       setInterval(() => {
         this.eqCalculate()
-      }, 1)
+      }, 5)
     },
     playAudio() {
       this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
@@ -312,7 +335,7 @@ export default {
       }
     },
     nextAudio() {
-      this.playlistScrollPosition = 25 * this.currentTrackFromPlaylist
+      this.playlistScrollPosition = 24 * this.currentTrackFromPlaylist
       if (this.isPlaylist === true) {
         setTimeout(() => {
           this.$refs.playlistDiv.scrollTop = this.playlistScrollPosition
@@ -324,7 +347,7 @@ export default {
     },
     eqCalculate() {
       this.analyser.getByteFrequencyData(this.data)
-      this.eqLine1 = ((this.data[2]) / 1.5);
+      this.eqLine1 = ((this.data[2]) / 1.6);
       this.eqLine2 = (this.data[3]) / 1.5;
       this.eqLine3 = (this.data[4]) / 1.5;
       this.eqLine4 = (this.data[6]) / 1.5;
@@ -358,8 +381,10 @@ export default {
       }
     },
     changeAudio(e) {
-      this.$refs.audioPlayer.currentTime = (e.clientX / window.innerWidth * this.$refs.audioPlayer.duration).toFixed(0)
-      this.playAudio()
+      if (this.currentTrackIsActive === true) {
+        this.$refs.audioPlayer.currentTime = (e.clientX / window.innerWidth * this.$refs.audioPlayer.duration).toFixed(0)
+        this.playAudio()
+      }
     },
     endedAudio() {
       if (this.shuffleRepeat !== 1) {
