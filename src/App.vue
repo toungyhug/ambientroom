@@ -39,14 +39,14 @@
             </div>
           </div>
           <div class="w-20 flex justify-center items-center">{{
-            (currentTrackMaxTime === null) ? "00:00" :
-              currentTrackMaxTime
+              (currentTrackMaxTime === null) ? "00:00" :
+                currentTrackMaxTime
           }}</div>
           <div class="w-1/2 flex flex-1 justify-center items-center" @click.self="changeAudio">
             <div v-if="currentTrackName !== null" @click.self="changeAudio"
               class="justify-center text-xl tracking-widest bg-gray-200 bg-opacity-70 pl-10 pr-10 text-black text-opacity-70 font-semibold font-cinzel">
               {{
-                currentTrackName
+                  currentTrackName
               }}</div>
             <div v-else @click.self="changeAudio" class="w-1/2 h-full flex flex-1 justify-center items-center">
               <img class="flex justify-center items-center h-8 m-2" src="../src/assets/logo_pausing_white.svg" alt />
@@ -78,7 +78,7 @@
               <p class="text-xs font-normal">playlist</p>
             </div>
           </div>
-          <div
+          <!-- <div
             class="flex flex-row justify-between items-center w-28 mr-1 ml-1 border border-gray-500 rounded-full cursor-default text-sm">
             <div @click="speedDown()"
               class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full p-0.5 pr-3 pl-3 cursor-pointer">
@@ -89,19 +89,11 @@
             </div>
             <div @click="speedUp()"
               class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full p-0.5 pr-3 pl-3 cursor-pointer">+</div>
-          </div>
-          <div class="w-24 h-full flex p-1.5 pt-4 pb-4 mr-1 ml-2" @click.self="changeAudio">
-            <div :style="{ 'opacity': currentTrackVolume * 100 + '%' }"
-              class="w-full h-full bg-gradient-to-tr from-grayy to-grayymore flex items-end">
-              <div class="w-full bg-gray-300 bg-opacity-70 mr-px" :style="{ 'height': (eqLine1 - 70) + '%' }">
-              </div>
-              <div class="w-full bg-gray-300 bg-opacity-70 mr-px" :style="{ 'height': (eqLine2 - 70) + '%' }">
-              </div>
-              <div class="w-full bg-gray-300 bg-opacity-70 mr-px" :style="{ 'height': (eqLine3 - 70) + '%' }">
-              </div>
-              <div class="w-full bg-gray-300 bg-opacity-70 mr-px" :style="{ 'height': (eqLine4 - 70) + '%' }">
-              </div>
-              <div class="w-full bg-gray-300 bg-opacity-70" :style="{ 'height': (eqLine5 - 70) + '%' }">
+          </div> -->
+          <div class="w-36 h-full flex p-1.5 pt-4 pb-4 mr-1 ml-2" @click.self="changeAudio">
+            <div class="w-full h-full bg-gradient-to-tr from-grayy to-grayymore flex items-end overflow-hidden">
+              <div v-for="(line, inddd) in eqLine" :key="inddd" class="w-full bg-gray-300 bg-opacity-70 mr-px"
+                :style="{ 'height': (line - (80 - (inddd * 1.1))) + '%', 'opacity': currentTrackVolume * 100 + '%', 'filter': ' brightness(' + line * 0.8 + '%) ' }">
               </div>
             </div>
           </div>
@@ -115,9 +107,9 @@
         <div v-else class="h-0.5 bg-gray-400 relative bottom-0 left-0 transition rounded-full w-full"></div>
       </div>
       <audio ref="audioPlayer" @timeupdate="updateAudio()" @ended="endedAudio()"></audio>
-      <div class="flex flex-col w-full h-full relative">
+      <div class="flex flex-col w-full h-full relative overflow-hidden">
         <div v-if="isPlaylist"
-          class="flex flex-col justify-start items-center w-52 max-h-96 absolute overflow-hidden top-5 right-5 border-2 border-gray-400 border-opacity-90">
+          class="flex flex-col justify-start items-center w-52 max-h-9/10 absolute overflow-hidden top-5 right-5 border-2 border-gray-400 border-opacity-90">
           <div
             class="flex flex-shrink-0 justify-between items-center w-full h-7 text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-200 bg-opacity-30 cursor-pointer">
             <div class="ml-1" @click="isPlaylistHandle()">
@@ -144,6 +136,9 @@
               </div>
             </div>
           </div>
+        </div>
+        <div class="w-full h-full flex justify-center items-center p-40">
+
         </div>
       </div>
     </div>
@@ -225,13 +220,13 @@ export default {
       this.analyser = this.audioctx.createAnalyser();
       this.audioSource.connect(this.analyser)
       this.analyser.connect(this.audioctx.destination)
-      this.analyser.fftSize = 64;
+      this.analyser.fftSize = 256;
       this.bufferLength = this.analyser.frequencyBinCount;
       this.data = new Uint8Array(this.bufferLength);
       this.analyser.getByteFrequencyData(this.data)
       setInterval(() => {
         this.eqCalculate()
-      }, 5)
+      }, 10)
     },
     playAudio() {
       this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
@@ -347,11 +342,9 @@ export default {
     },
     eqCalculate() {
       this.analyser.getByteFrequencyData(this.data)
-      this.eqLine1 = ((this.data[2]) / 1.6);
-      this.eqLine2 = (this.data[3]) / 1.5;
-      this.eqLine3 = (this.data[4]) / 1.5;
-      this.eqLine4 = (this.data[6]) / 1.5;
-      this.eqLine5 = (this.data[8]) / 1.5;
+      for (let i = 0; i < 40; i++) {
+        this.eqLine[i] = ((this.data[i + 3]) / 1.4);
+      }
     },
     updateAudio() {
       if (isNaN(this.currentTrackMaxTimeReal)) {
@@ -467,11 +460,8 @@ export default {
     const isPlaylist = ref(false);
     const currentTrackFromPlaylist = ref(null);
     const playlistScrollPosition = ref(0);
-    const eqLine1 = ref(0)
-    const eqLine2 = ref(0)
-    const eqLine3 = ref(0)
-    const eqLine4 = ref(0)
-    const eqLine5 = ref(0)
+    const eqLine = ref([])
+    const visualisationVer = ref([])
     let audioctx;
     let audioSource;
     let analyser;
@@ -479,7 +469,7 @@ export default {
     let data;
 
 
-    return { oneStart, eqLine1, eqLine2, eqLine3, eqLine4, eqLine5, audioSource, data, audioctx, analyser, bufferLength, ready, currentTrackIsActive, currentTrackVolume, currentTrackMaxTimeReal, playlistScrollPosition, currentTrackFromPlaylist, shuffleRepeat, isPlaylist, playlist, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
+    return { visualisationVer, oneStart, eqLine, audioSource, data, audioctx, analyser, bufferLength, ready, currentTrackIsActive, currentTrackVolume, currentTrackMaxTimeReal, playlistScrollPosition, currentTrackFromPlaylist, shuffleRepeat, isPlaylist, playlist, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
   }
 }
 </script>
