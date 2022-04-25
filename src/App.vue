@@ -91,9 +91,10 @@
               class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full p-0.5 pr-3 pl-3 cursor-pointer">+</div>
           </div> -->
           <div class="w-36 h-full flex p-1.5 pt-4 pb-4 mr-1 ml-2" @click.self="changeAudio">
-            <div class="w-full h-full bg-gradient-to-tr from-grayy to-grayymore flex items-end overflow-hidden">
-              <div v-for="(line, inddd) in eqLine" :key="inddd" class="w-full bg-gray-300 bg-opacity-70 mr-px"
-                :style="{ 'height': (line - (80 - (inddd * 1.1))) + '%', 'opacity': currentTrackVolume * 100 + '%', 'filter': ' brightness(' + line * 0.8 + '%) ' }">
+            <div
+              class="w-full h-full bg-gradient-to-tr from-grayy via-grayymore to-grayymoree flex items-end overflow-hidden">
+              <div v-for="(line, inddd) in eqLine" :key="inddd" class="w-full bg-gray-300 bg-opacity-70 rounded-full"
+                :style="{ 'height': (line - (80 - (inddd * 1.1))) + '%', 'opacity': currentTrackVolume * 150 + '%', 'filter': ' brightness(' + line * 0.7 + '%) ' }">
               </div>
             </div>
           </div>

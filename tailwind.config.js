@@ -30,7 +30,8 @@ module.exports = {
       colors: {
         yellow: '#b9ad46',
         grayy: '#353535',
-        grayymore: '#494949'
+        grayymore: '#494949',
+        grayymoree: '#4d4d4d'
       },
       letterSpacing:{
         widetest: '.18em',
