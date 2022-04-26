@@ -36,7 +36,9 @@
       <div class="h-1/15 w-full flex flex-col relative shadow-2xl">
         <div ref="szer" @click.self="changeAudio"
           class="pl-2 pr-2 w-full h-full flex flex-row items-center  text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer">
-          <div class="w-20 flex justify-center">{{ (currentTrackTime === null) ? "00:00" : currentTrackTime }}</div>
+          <div class="w-20 flex justify-center pointer-events-none">{{ (currentTrackTime === null) ? "00:00" :
+              currentTrackTime
+          }}</div>
           <div class="flex justify-center items-center font-normal mr-2 ml-2 text-2xs">
             <div class="flex w-36 justify-around items-center "
               v-if="currentTrackPlaying === false && currentTrackIsActive === true">
@@ -69,11 +71,11 @@
               </div>
             </div>
           </div>
-          <div class="w-20 flex justify-center items-center">{{
+          <div class="w-20 flex justify-center items-center pointer-events-none">{{
               (currentTrackMaxTime === null) ? "00:00" :
                 currentTrackMaxTime
           }}</div>
-          <div class="w-1/2 flex flex-1 justify-center items-center" @click.self="changeAudio">
+          <div class="w-1/2 flex flex-1 justify-center items-center pointer-events-none">
             <div
               class="justify-center text-xl tracking-widest bg-gray-200 bg-opacity-70 pl-10 pr-10 text-black text-opacity-70 font-semibold font-cinzel">
               {{
@@ -118,7 +120,7 @@
             <div @click="speedUp()"
               class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full p-0.5 pr-3 pl-3 cursor-pointer">+</div>
           </div> -->
-          <div class="w-36 h-full flex p-1.5 pt-4 pb-4 mr-1 ml-2" @click.self="changeAudio">
+          <div class="w-36 h-full flex p-1.5 pt-4 pb-4 mr-1 ml-2 pointer-events-none">
             <div
               class="w-full h-full bg-gradient-to-tr from-grayy via-grayymore to-grayymoree flex items-end overflow-hidden">
               <div v-for="(line, inddd) in eqLine" :key="inddd" class="w-full bg-gray-300 bg-opacity-70 rounded-full"
