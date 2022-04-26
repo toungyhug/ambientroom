@@ -1,10 +1,41 @@
 <template>
   <div @keyup.up="volumeUp" @keyup.down="volumeDown" @keyup.right="seekUp" @keyup.left="seekDown" tabindex="0"
-    class="w-screen h-screen bg-usual-background bg-left-top bg-repeat select-none">
+    class=" w-screen h-screen bg-usual-background bg-left-top bg-repeat select-none">
+    <div v-if="ready === false"
+      class="absolute flex justify-center items-center top-0 bottom-0 left-0 right-0 w-full h-full bg-gray-200 bg-opacity-100 p-10 z-10">
+      <div class="flex flex-col justify-center items-center h-4/5 w-1/">
+        <div class="h-px w-full bg-gray-500 bg-opacity-20 mb-1"></div>
+        <div class="h-px w-full bg-gray-500 bg-opacity-40 mb-1"></div>
+        <div class="h-px w-full bg-gray-500 bg-opacity-60 mb-1"></div>
+        <div class="h-px w-full bg-gray-500 bg-opacity-80 mb-1"></div>
+        <div class="h-px w-full bg-gray-500 mb-1"></div>
+        <div class="flex justify-start items-center h-14 mt-14 mb-12"><img src="./assets/logo_pausing.svg" select-none
+            class="h-full" alt="">
+        </div>
+        <div class="flex justify-start items-center h-76 mb-14"><img src="./assets/artss.png" select-none
+            class="h-full shadow-lg border-4 border-gray-400 border-opacity-80" alt="">
+        </div>
+        <div class="cursor-default opacity-90 h-10 mb-14 flex justify-center items-center">
+          <div
+            class=" text-gray-100 font-normal relative p-px pr-3 pl-3 flex justify-center items-center bg-gray-300 bg-opacity-80 rounded-full hover:bg-opacity-100 cursor-pointer">
+            <span class=" text-4xl font-serif text-black">🛰</span>
+            <input ref="file" id="file" type="file" multiple @change="handlePath" accept="audio/*"
+              class="text-xs rounded-full p-0 absolute opacity-0 cursor-pointer" />
+          </div>
+        </div>
+        <div class="h-px w-full bg-gray-500 mb-1"></div>
+        <div class="h-px w-full bg-gray-500 bg-opacity-80 mb-1"></div>
+        <div class="h-px w-full bg-gray-500 bg-opacity-60 mb-1"></div>
+        <div class="h-px w-full bg-gray-500 bg-opacity-40 mb-1"></div>
+        <div class="h-px w-full bg-gray-500 bg-opacity-20 mb-1"></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
     <div class="flex flex-col w-full h-full">
       <div class="h-1/15 w-full flex flex-col relative shadow-2xl">
         <div ref="szer" @click.self="changeAudio"
-          class="pl-2 pr-2 w-full h-full flex flex-row items-center text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer">
+          class="pl-2 pr-2 w-full h-full flex flex-row items-center  text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer">
           <div class="w-20 flex justify-center">{{ (currentTrackTime === null) ? "00:00" : currentTrackTime }}</div>
           <div class="flex justify-center items-center font-normal mr-2 ml-2 text-2xs">
             <div class="flex w-36 justify-around items-center "
@@ -43,14 +74,11 @@
                 currentTrackMaxTime
           }}</div>
           <div class="w-1/2 flex flex-1 justify-center items-center" @click.self="changeAudio">
-            <div v-if="currentTrackName !== null" @click.self="changeAudio"
+            <div
               class="justify-center text-xl tracking-widest bg-gray-200 bg-opacity-70 pl-10 pr-10 text-black text-opacity-70 font-semibold font-cinzel">
               {{
                   currentTrackName
               }}</div>
-            <div v-else @click.self="changeAudio" class="w-1/2 h-full flex flex-1 justify-center items-center">
-              <img class="flex justify-center items-center h-8 m-2" src="../src/assets/logo_pausing_white.svg" alt />
-            </div>
           </div>
           <div @click="changeShuffleRepeat()"
             class="flex w-18 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
@@ -99,13 +127,15 @@
             </div>
           </div>
         </div>
-        <div v-if="currentTrackIsPaused === true || currentTrackPlaying === true"
-          class="h-0.5 relative bottom-0 left-0 transition rounded-full w-full ">
-          <div class="h-0.5 absolute bottom-0 left-0 transition rounded-full bg-seek bg-bottom bg-auto"
-            :style="{ 'width': currentPlayerTime + 'px' }">
+        <div v-if="ready === true">
+          <div v-if="currentTrackIsPaused === true || currentTrackPlaying === true"
+            class="h-0.5 relative bottom-0 left-0 transition rounded-full w-full ">
+            <div class="h-0.5 absolute bottom-0 left-0 transition rounded-full bg-seek bg-bottom bg-auto"
+              :style="{ 'width': currentPlayerTime + 'px' }">
+            </div>
           </div>
+          <div v-else class="h-0.5 bg-gray-400 relative bottom-0 left-0 transition rounded-full w-full"></div>
         </div>
-        <div v-else class="h-0.5 bg-gray-400 relative bottom-0 left-0 transition rounded-full w-full"></div>
       </div>
       <audio ref="audioPlayer" @timeupdate="updateAudio()" @ended="endedAudio()"></audio>
       <div class="flex flex-col w-full h-full relative overflow-hidden">
