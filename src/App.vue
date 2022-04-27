@@ -1,7 +1,7 @@
 <template>
   <div @keyup.up="volumeUp" @keyup.down="volumeDown" @keyup.right="seekUp" @keyup.left="seekDown" tabindex="0"
     class=" w-screen h-screen bg-usual-background bg-left-top bg-repeat select-none">
-    <div v-if="ready === false"
+    <div v-if="oneStart === false"
       class="absolute flex justify-center items-center top-0 bottom-0 left-0 right-0 w-full h-full bg-gray-200 bg-opacity-100 p-10 z-10">
       <div class="flex flex-col justify-center items-center h-4/5 w-1/">
         <div class="h-px w-full bg-gray-500 bg-opacity-20 mb-1"></div>
@@ -348,7 +348,7 @@ export default {
     },
     volumeUp() {
       if (this.currentTrackVolume !== 1) {
-        this.currentTrackVolume = this.currentTrackVolume + 0.2;
+        this.currentTrackVolume = this.currentTrackVolume + 0.1;
         this.currentTrackVolume = this.currentTrackVolume.toFixed(1);
         this.currentTrackVolume = parseFloat(this.currentTrackVolume);
         this.$refs.audioPlayer.volume = this.currentTrackVolume;
@@ -356,7 +356,7 @@ export default {
     },
     volumeDown() {
       if (this.currentTrackVolume !== 0) {
-        this.currentTrackVolume = this.currentTrackVolume - 0.2;
+        this.currentTrackVolume = this.currentTrackVolume - 0.1;
         this.currentTrackVolume = this.currentTrackVolume.toFixed(1);
         this.currentTrackVolume = parseFloat(this.currentTrackVolume);
         this.$refs.audioPlayer.volume = this.currentTrackVolume;
