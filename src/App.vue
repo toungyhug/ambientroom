@@ -61,12 +61,12 @@
                   <img src="./assets/icons/stop_icon.svg"
                     class="h-3.5 filter grayscale invert backdrop-brightness-150 brightness-75" alt="">
                 </div>
-                <div v-if="shuffleRepeat !== 1" @click="endedAudio()"
+                <div v-if="(shuffleRepeat === 0) && (playlist.length === 1)" @click="repeat()"
                   class="flex justify-center items-center cursor-pointer mr-3 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full h-6 w-14 hover:opacity-80">
-                  <img src="./assets/icons/next_icon.svg" class="h-3.5 filter grayscale brightness-125" alt="">
+                  <img src="./assets/icons/repeat_icon.svg" class="h-3.5 filter invert grayscale opacity-70" alt="">
                 </div>
-                <div v-if="shuffleRepeat === 1"
-                  class="flex justify-center items-center cursor-not-allowed mr-3 border border-gray-500 bg-gray-400 opacity-30 rounded-full h-6 w-14 ">
+                <div v-else @click="endedAudio()"
+                  class="flex justify-center items-center cursor-pointer mr-3 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full h-6 w-14 hover:opacity-80">
                   <img src="./assets/icons/next_icon.svg" class="h-3.5 filter grayscale brightness-125" alt="">
                 </div>
               </div>
@@ -81,12 +81,12 @@
                   <img src="./assets/icons/stop_icon.svg"
                     class="h-3.5 filter grayscale invert backdrop-brightness-150 brightness-75" alt="">
                 </div>
-                <div v-if="shuffleRepeat !== 1" @click="endedAudio()"
+                <div v-if="(shuffleRepeat === 0) && (playlist.length === 1)" @click="repeat()"
                   class="flex justify-center items-center cursor-pointer mr-3 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full h-6 w-14 hover:opacity-80">
-                  <img src="./assets/icons/next_icon.svg" class="h-3.5 filter grayscale brightness-125" alt="">
+                  <img src="./assets/icons/repeat_icon.svg" class="h-3.5 filter invert grayscale opacity-70" alt="">
                 </div>
-                <div v-if="shuffleRepeat === 1"
-                  class="flex justify-center items-center cursor-not-allowed mr-3 border border-gray-500 bg-gray-400 opacity-30 rounded-full h-6 w-14 ">
+                <div v-else @click="endedAudio()"
+                  class="flex justify-center items-center cursor-pointer mr-3 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full h-6 w-14 hover:opacity-80">
                   <img src="./assets/icons/next_icon.svg" class="h-3.5 filter grayscale brightness-125" alt="">
                 </div>
               </div>
@@ -157,9 +157,9 @@
             <div @click="speedUp()"
               class="bg-gray-300 bg-opacity-20 hover:bg-opacity-30 rounded-full p-0.5 pr-3 pl-3 cursor-pointer">+</div>
           </div> -->
-          <div class="w-36 h-full flex p-1.5 pt-4 pb-4 mr-1 ml-2 pointer-events-none">
+          <div class="w-36 h-full flex p-1.5 pt-4 pb-4 mr-1 ml-2 pointer-events-none rounded-2xl">
             <div
-              class="w-full h-full bg-gradient-to-tr from-grayy via-grayymore to-grayymoree flex items-end overflow-hidden">
+              class="w-full h-full bg-gradient-to-tr from-grayy via-grayymore to-grayymoree flex items-end overflow-hidden rounded-2xl">
               <div v-for="(line, inddd) in eqLine" :key="inddd" class="w-full bg-gray-300 bg-opacity-70 rounded-full"
                 :style="{ 'height': (line - (80 - (inddd * 1.1))) + '%', 'opacity': currentTrackVolume * 150 + '%', 'filter': ' brightness(' + line * 0.7 + '%) ' }">
               </div>
@@ -179,10 +179,10 @@
       <audio ref="audioPlayer" @timeupdate="updateAudio()" @ended="endedAudio()"></audio>
       <div class="flex flex-col w-full h-full relative overflow-hidden">
         <div v-if="isPlaylist"
-          class="flex flex-col justify-start items-center w-52 max-h-9/10 absolute overflow-hidden top-5 right-5 border-2 border-gray-400 border-opacity-90">
+          class="flex flex-col justify-start items-center w-52 max-h-9/10 rounded-lg absolute overflow-hidden top-5 right-5 border-2 border-gray-400 border-opacity-90">
           <div
-            class="flex flex-shrink-0 justify-between items-center w-full h-7 text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-200 bg-opacity-30 cursor-pointer">
-            <div class="ml-1" @click="isPlaylistHandle()">
+            class="flex flex-shrink-0 justify-between items-center w-full h-8 text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-200 bg-opacity-30 cursor-pointer">
+            <div class="ml-1 " @click="isPlaylistHandle()">
               Playlist - {{ playlist.length }} tracks
             </div>
             <div
@@ -480,6 +480,7 @@ export default {
 
       }
       else if (this.shuffleRepeat === 1) {
+        this.$refs.audioPlayer.currentTime = 0;
         this.playAudio()
       }
     },
@@ -507,6 +508,10 @@ export default {
     speedReset() {
       this.currentTrackSpeed = 1;
       this.$refs.audioPlayer.playbackRate = this.currentTrackSpeed;
+    },
+    repeat() {
+      this.$refs.audioPlayer.currentTime = 0;
+      this.playAudio()
     },
     changeShuffleRepeat() {
       this.shuffleRepeat++;
