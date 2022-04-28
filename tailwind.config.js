@@ -40,13 +40,15 @@ module.exports = {
       fontFamily: {
         'urbanist': ['Urbanist'],
         'cinzel': ['Cinzel'],
+        'nunito': ['Nunito Sans'],
       },
       fontSize: {
         '2xs': '10px',
       },
       animation: {
-        'spin-slow': 'spin 15s linear infinite',
+        'spin-slow': 'spin 5s linear infinite',
         'spin-slow-twice': 'spin 30s linear infinite',
+        'spin-step': 'spin-step 0.7s infinite',
         'spin-reverse': 'spin-slow-reverse 10s linear infinite',
         'spin-reverse-twice': 'spin-slow-reverse-twice 10s linear infinite',
         'header-on': 'header-on 1s linear 1'
@@ -55,6 +57,31 @@ module.exports = {
         'header-on' :{
           '0%': {opacity: 0},
           '100%': {opacity: 100}
+        },
+        'spin-step':{
+          '0%': {transform: 'rotate(0deg)'},
+          '12.4%': {transform: 'rotate(0deg)'},
+
+          '12.5%': {transform: 'rotate(45deg)'},
+          '24.9%': {transform: 'rotate(45deg)'},
+
+          '25%': {transform: 'rotate(90deg)'},
+          '37.4%': {transform: 'rotate(90deg)'},
+
+          '37.5%': {transform: 'rotate(135deg)'},
+          '49.9%': {transform: 'rotate(135deg)'},
+
+          '50%': {transform: 'rotate(180deg)'},
+          '62.4%': {transform: 'rotate(180deg)'},
+
+          '62.5%': {transform: 'rotate(225deg)'},
+          '74.9%': {transform: 'rotate(225deg)'},
+
+          '75%': {transform: 'rotate(270deg)'},
+          '87.4%': {transform: 'rotate(270deg)'},
+
+          '87.5%': {transform: 'rotate(315deg)'},
+          '99.9%': {transform: 'rotate(315deg)'},
         },
         'spin-slow-reverse' :{
           '0%': {transform: 'rotate(0deg)'},

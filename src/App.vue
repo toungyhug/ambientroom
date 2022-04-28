@@ -39,7 +39,7 @@
           <div
             class="flex justify-center items-center border border-gray-500 border-opacity-90 rounded-full h-9 pointer-events-none">
             <div
-              class="h-8 w-16 flex justify-center items-center pointer-events-none text-base font-normal tracking-widetest ml-1">
+              class="h-8 w-16 flex justify-center items-center pointer-events-none text-base font-light tracking-widest ml-2 text-gray-200 font-nunito">
               {{
                   (currentTrackTime === null) ? "00:00" :
                     currentTrackTime
@@ -94,50 +94,55 @@
                 class="cursor-default opacity-90 w-44 h-6 flex justify-center items-center ">
                 <div
                   class="pointer-events-auto text-xs font-normal relative w-full h-full ml-2 mr-2 flex justify-center items-center bg-gray-200 bg-opacity-30 rounded-full hover:bg-opacity-40 cursor-pointer">
-                  choose
+                  <img src="./assets/icons/add_icon.svg" class="h-5 filter invert grayscale opacity-70" alt="">
                   <input ref="file" id="file" type="file" multiple @change="handlePath" accept="audio/*"
                     class="text-sm rounded-full p-0 absolute opacity-0 cursor-pointer" />
                 </div>
               </div>
             </div>
             <div
-              class="h-8 w-16 flex justify-center items-center pointer-events-none text-base font-normal tracking-widetest mr-1">
+              class="h-8 w-16 flex justify-center items-center pointer-events-none text-base font-light tracking-widest mr-2 text-gray-200 font-nunito">
               {{
                   (currentTrackMaxTime === null) ? "00:00" :
                     currentTrackMaxTime
               }}</div>
           </div>
           <div class="w-1/2 flex flex-1 justify-center items-center pointer-events-none">
-            <div
-              class="justify-center text-xl tracking-widest bg-gray-200 bg-opacity-70 pl-10 pr-10 text-black text-opacity-70 font-semibold font-cinzel">
+            <div v-if="currentStateLoading === false"
+              class="justify-center text-xl tracking-widest bg-gray-200 bg-opacity-70 pl-10 pr-10 text-black text-opacity-70 font-semibold font-cinzel rounded-full">
               {{
                   currentTrackName
               }}</div>
+            <div v-else class="h-full w-1/2 flex justify-center items-center font-cinzel opacity-80">
+              <img src="./assets/icons/loading_icon.svg"
+                class="h-7 filter grayscale invert backdrop-brightness-150 brightness-75 animate-spin-step" alt="">
+              <span class="text-gray-100 text-lg tracking-widest ml-3 mr-3 font-normal font-nunito">loading...</span>
+            </div>
           </div>
           <div @click="changeShuffleRepeat()"
             class="flex h-6 w-16 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
             <div v-if="shuffleRepeat === 0"
               class="h-full w-full  flex justify-center items-center bg-gray-300 bg-opacity-30 rounded-full">
-              <img src="./assets/icons/order2_icon.svg" class="h-4 filter invert opacity-90" alt="">
+              <img src="./assets/icons/order2_icon.svg" class="h-4 filter invert opacity-70" alt="">
             </div>
             <div v-else-if="shuffleRepeat === 1"
               class="h-full w-full flex justify-center items-center bg-purple-300 bg-opacity-40 rounded-full">
-              <img src="./assets/icons/repeat_icon.svg" class="h-4 filter invert opacity-90" alt="">
+              <img src="./assets/icons/repeat_icon.svg" class="h-4 filter invert opacity-70" alt="">
             </div>
             <div v-else-if="shuffleRepeat === 2"
               class="h-full w-full flex justify-center items-center bg-yellow bg-opacity-50 rounded-full">
-              <img src="./assets/icons/shuffle_icon.svg" class="h-4 filter invert opacity-90" alt="">
+              <img src="./assets/icons/shuffle_icon.svg" class="h-4 filter invert opacity-70" alt="">
             </div>
           </div>
           <div @click="isPlaylistHandle()"
             class="flex h-6 w-16 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-2">
             <div v-if="isPlaylist === true"
               class="h-full w-full flex justify-center items-center bg-green-300 bg-opacity-30 rounded-full">
-              <img src="./assets/icons/playlist_icon.svg" class="h-4 filter invert opacity-90" alt="">
+              <img src="./assets/icons/playlist_icon.svg" class="h-4 filter invert opacity-70" alt="">
             </div>
             <div v-else-if="isPlaylist === false"
               class="h-full w-full flex justify-center items-center bg-gray-300 bg-opacity-30 rounded-full">
-              <img src="./assets/icons/playlist_icon.svg" class="h-4 filter invert opacity-90" alt="">
+              <img src="./assets/icons/playlist_icon.svg" class="h-4 filter invert opacity-70" alt="">
             </div>
           </div>
           <!-- <div
@@ -221,7 +226,7 @@ export default {
 
   methods: {
     handlePathAdd(file) {
-      this.currentTrackName = "loading..."
+      this.currentStateLoading = true;
       let counter = 0;
       let playlistLength = this.playlist.length;
       for (let i = 0; i < file.target.files.length; i++) {
@@ -237,6 +242,7 @@ export default {
           if (counter === file.target.files.length) {
             setTimeout(() => {
               this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
+              this.currentStateLoading = false;
             }, 500)
           }
         }
@@ -251,7 +257,7 @@ export default {
       if (file.target.files.length > 1) {
         this.isPlaylist = true;
       }
-      this.currentTrackName = "loading..."
+      this.currentStateLoading = true;
       for (let i = 0; i < file.target.files.length; i++) {
         let reader = new FileReader();
         reader.readAsDataURL(file.target.files[i])
@@ -279,6 +285,7 @@ export default {
         this.eq()
         this.oneStart = true
       }
+      this.currentStateLoading = false;
     },
     eq() {
       this.audioSource = this.audioctx.createMediaElementSource(this.$refs.audioPlayer);
@@ -298,6 +305,7 @@ export default {
       this.currentTrackPlaying = true
       this.currentTrackIsPaused = false
       this.$refs.audioPlayer.play()
+      this.currentStateLoading = false;
       this.calculateMaxTime()
     },
     playAnotherTrack(id) {
@@ -323,7 +331,7 @@ export default {
     calculateMaxTime() {
       this.currentTrackMaxTimeReal = this.$refs.audioPlayer.duration;
       if (isNaN(this.currentTrackMaxTimeReal)) {
-        this.currentTrackMaxTime = "loading.."
+        this.currentStateLoading = true;
       }
       else {
 
@@ -359,7 +367,7 @@ export default {
       this.ready = false;
     },
     loadAudio() {
-      this.currentTrackName = "loading..."
+      this.currentStateLoading = true;
       this.$refs.audioPlayer.load()
       this.$refs.audioPlayer.currentTime = 0;
       this.currentTrackPlaying = false
@@ -451,7 +459,7 @@ export default {
             this.pauseAudio()
           }
           else {
-            let randomNumber = Math.floor(Math.random() * ((this.playlist.length) - 0 + 1) + 0);
+            let randomNumber = Math.floor(Math.random() * ((this.playlist.length - 1) - 0 + 1) + 0);
             if (this.currentTrackFromPlaylist === randomNumber) {
               this.endedAudio()
             } else {
@@ -502,6 +510,9 @@ export default {
     },
     changeShuffleRepeat() {
       this.shuffleRepeat++;
+      if (this.shuffleRepeat === 2 && this.playlist.length === 1) {
+        this.shuffleRepeat++;
+      }
       if (this.shuffleRepeat === 3) {
         this.shuffleRepeat = 0;
       }
@@ -520,6 +531,7 @@ export default {
     const currentTrackSpeed = ref(1);
     const currentTrackVolume = ref(1);
     const currentPlayerTime = ref(window.innerWidth);
+    const currentStateLoading = ref(false);
     const shuffleRepeat = ref(0);
     const playlist = ref([]);
     const isPlaylist = ref(false);
@@ -534,7 +546,7 @@ export default {
     let data;
 
 
-    return { visualisationVer, oneStart, eqLine, audioSource, data, audioctx, analyser, bufferLength, ready, currentTrackIsActive, currentTrackVolume, currentTrackMaxTimeReal, playlistScrollPosition, currentTrackFromPlaylist, shuffleRepeat, isPlaylist, playlist, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
+    return { visualisationVer, oneStart, eqLine, audioSource, data, audioctx, analyser, bufferLength, ready, currentTrackIsActive, currentStateLoading, currentTrackVolume, currentTrackMaxTimeReal, playlistScrollPosition, currentTrackFromPlaylist, shuffleRepeat, isPlaylist, playlist, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
   }
 }
 </script>
