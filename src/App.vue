@@ -36,45 +36,77 @@
       <div class="h-1/15 w-full flex flex-col relative shadow-2xl">
         <div ref="szer" @click.self="changeAudio"
           class="pl-2 pr-2 w-full h-full flex flex-row items-center  text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer">
-          <div class="w-20 flex justify-center pointer-events-none">{{ (currentTrackTime === null) ? "00:00" :
-              currentTrackTime
-          }}</div>
-          <div class="flex justify-center items-center font-normal mr-2 ml-2 text-2xs">
-            <div class="flex w-36 justify-around items-center "
-              v-if="currentTrackPlaying === false && currentTrackIsActive === true">
-              <div v-if="ready === true" @click="playAudio()"
-                class="flex justify-center items-center cursor-pointer mr-1 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
-                PLAY</div>
-              <div v-else-if="ready === false"
-                class="flex justify-center items-center cursor-default mr-1 border border-gray-700 bg-gray-700 bg-opacity-30 rounded-full p-1 pr-4 pl-4">
-                PLAY</div>
-              <div @click="stopAudio()"
-                class="flex justify-center items-center ml-1 border border-gray-500 bg-gray-400 bg-opacity-20 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
-                STOP</div>
-            </div>
-            <div class="flex w-36 justify-between"
-              v-else-if="currentTrackPlaying === true && currentTrackIsActive === true">
-              <div @click="pauseAudio()"
-                class="flex justify-center items-center tracking-widetest cursor-pointer mr-1 border border-gray-500 bg-gray-400 bg-opacity-20 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
-                PAUSE</div>
-              <div @click="stopAudio()"
-                class="flex justify-center items-center tracking-widetest ml-1 border border-gray-500 bg-gray-400 bg-opacity-20 rounded-full p-1 pr-4 pl-4 hover:opacity-80">
-                STOP</div>
-            </div>
-            <div v-else-if="currentTrackIsActive === false"
-              class="cursor-default opacity-90 w-22 h-6 flex justify-center items-center">
-              <div
-                class="text-xs font-normal relative w-22 h-full p-1 pr-3 pl-3 flex justify-center items-center bg-gray-200 bg-opacity-30 rounded-full hover:bg-opacity-40 cursor-pointer">
-                choose
-                <input ref="file" id="file" type="file" multiple @change="handlePath" accept="audio/*"
-                  class="text-sm rounded-full p-0 absolute opacity-0 cursor-pointer" />
+          <div
+            class="flex justify-center items-center border border-gray-500 border-opacity-90 rounded-full h-9 pointer-events-none">
+            <div
+              class="h-8 w-16 flex justify-center items-center pointer-events-none text-base font-normal tracking-widetest ml-1">
+              {{
+                  (currentTrackTime === null) ? "00:00" :
+                    currentTrackTime
+              }}</div>
+            <div
+              class="flex justify-center items-center font-normal mr-2 ml-2 text-2xs bg-gray-500 bg-opacity-30 rounded-full h-9">
+              <div class="flex w-44 justify-around items-center pointer-events-auto"
+                v-if="currentTrackPlaying === false && currentTrackIsActive === true">
+                <div v-if="ready === true" @click="playAudio()"
+                  class="flex justify-center items-center cursor-pointer ml-3 mr-2 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full h-6 w-14 hover:opacity-80">
+                  <img src="./assets/icons/play_icon.svg" class="h-3.5 filter grayscale opacity-90" alt="">
+                </div>
+                <div v-else-if="ready === false"
+                  class="flex justify-center items-center cursor-pointer mr-2 border border-gray-500 bg-gray-400 opacity-30 rounded-full h-6 w-14">
+                  <img src="./assets/icons/play_icon.svg" class="h-3.5 filter grayscale opacity-90" alt="">
+                </div>
+                <div @click="stopAudio()"
+                  class="flex justify-center items-center cursor-pointer mr-2 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full h-6 w-14 hover:opacity-80">
+                  <img src="./assets/icons/stop_icon.svg"
+                    class="h-3.5 filter grayscale invert backdrop-brightness-150 brightness-75" alt="">
+                </div>
+                <div v-if="shuffleRepeat !== 1" @click="endedAudio()"
+                  class="flex justify-center items-center cursor-pointer mr-3 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full h-6 w-14 hover:opacity-80">
+                  <img src="./assets/icons/next_icon.svg" class="h-3.5 filter grayscale brightness-125" alt="">
+                </div>
+                <div v-if="shuffleRepeat === 1"
+                  class="flex justify-center items-center cursor-not-allowed mr-3 border border-gray-500 bg-gray-400 opacity-30 rounded-full h-6 w-14 ">
+                  <img src="./assets/icons/next_icon.svg" class="h-3.5 filter grayscale brightness-125" alt="">
+                </div>
+              </div>
+              <div class="flex w-44 justify-around items-center pointer-events-auto"
+                v-else-if="currentTrackPlaying === true && currentTrackIsActive === true">
+                <div @click="pauseAudio()"
+                  class="flex justify-center items-center cursor-pointer ml-3 mr-2 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full h-6 w-14 hover:opacity-80">
+                  <img src="./assets/icons/pause_icon.svg" class="h-3.5 filter grayscale opacity-90" alt="">
+                </div>
+                <div @click="stopAudio()"
+                  class="flex justify-center items-center cursor-pointer mr-2 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full h-6 w-14 hover:opacity-80">
+                  <img src="./assets/icons/stop_icon.svg"
+                    class="h-3.5 filter grayscale invert backdrop-brightness-150 brightness-75" alt="">
+                </div>
+                <div v-if="shuffleRepeat !== 1" @click="endedAudio()"
+                  class="flex justify-center items-center cursor-pointer mr-3 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full h-6 w-14 hover:opacity-80">
+                  <img src="./assets/icons/next_icon.svg" class="h-3.5 filter grayscale brightness-125" alt="">
+                </div>
+                <div v-if="shuffleRepeat === 1"
+                  class="flex justify-center items-center cursor-not-allowed mr-3 border border-gray-500 bg-gray-400 opacity-30 rounded-full h-6 w-14 ">
+                  <img src="./assets/icons/next_icon.svg" class="h-3.5 filter grayscale brightness-125" alt="">
+                </div>
+              </div>
+              <div v-else-if="currentTrackIsActive === false"
+                class="cursor-default opacity-90 w-44 h-6 flex justify-center items-center ">
+                <div
+                  class="pointer-events-auto text-xs font-normal relative w-full h-full ml-2 mr-2 flex justify-center items-center bg-gray-200 bg-opacity-30 rounded-full hover:bg-opacity-40 cursor-pointer">
+                  choose
+                  <input ref="file" id="file" type="file" multiple @change="handlePath" accept="audio/*"
+                    class="text-sm rounded-full p-0 absolute opacity-0 cursor-pointer" />
+                </div>
               </div>
             </div>
+            <div
+              class="h-8 w-16 flex justify-center items-center pointer-events-none text-base font-normal tracking-widetest mr-1">
+              {{
+                  (currentTrackMaxTime === null) ? "00:00" :
+                    currentTrackMaxTime
+              }}</div>
           </div>
-          <div class="w-20 flex justify-center items-center pointer-events-none">{{
-              (currentTrackMaxTime === null) ? "00:00" :
-                currentTrackMaxTime
-          }}</div>
           <div class="w-1/2 flex flex-1 justify-center items-center pointer-events-none">
             <div
               class="justify-center text-xl tracking-widest bg-gray-200 bg-opacity-70 pl-10 pr-10 text-black text-opacity-70 font-semibold font-cinzel">
@@ -83,29 +115,29 @@
               }}</div>
           </div>
           <div @click="changeShuffleRepeat()"
-            class="flex w-18 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
+            class="flex h-6 w-16 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3">
             <div v-if="shuffleRepeat === 0"
-              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-gray-200 bg-opacity-30 rounded-full">
-              <p class="text-xs font-normal">order</p>
+              class="h-full w-full  flex justify-center items-center bg-gray-300 bg-opacity-30 rounded-full">
+              <img src="./assets/icons/order2_icon.svg" class="h-4 filter invert opacity-90" alt="">
             </div>
             <div v-else-if="shuffleRepeat === 1"
-              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-purple-300 bg-opacity-50 rounded-full">
-              <p class="text-xs font-normal">repeat</p>
+              class="h-full w-full flex justify-center items-center bg-purple-300 bg-opacity-40 rounded-full">
+              <img src="./assets/icons/repeat_icon.svg" class="h-4 filter invert opacity-90" alt="">
             </div>
             <div v-else-if="shuffleRepeat === 2"
-              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-yellow bg-opacity-70 rounded-full">
-              <p class="text-xs font-normal">shuffle</p>
+              class="h-full w-full flex justify-center items-center bg-yellow bg-opacity-50 rounded-full">
+              <img src="./assets/icons/shuffle_icon.svg" class="h-4 filter invert opacity-90" alt="">
             </div>
           </div>
           <div @click="isPlaylistHandle()"
-            class="flex w-18 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-2">
+            class="flex h-6 w-16 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-2">
             <div v-if="isPlaylist === true"
-              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-green-400 bg-opacity-30 rounded-full">
-              <p class="text-xs font-normal">playlist</p>
+              class="h-full w-full flex justify-center items-center bg-green-300 bg-opacity-30 rounded-full">
+              <img src="./assets/icons/playlist_icon.svg" class="h-4 filter invert opacity-90" alt="">
             </div>
             <div v-else-if="isPlaylist === false"
-              class="h-full w-full p-1 pr-3 pl-3 flex justify-center items-center bg-red-400 bg-opacity-30 rounded-full">
-              <p class="text-xs font-normal">playlist</p>
+              class="h-full w-full flex justify-center items-center bg-gray-300 bg-opacity-30 rounded-full">
+              <img src="./assets/icons/playlist_icon.svg" class="h-4 filter invert opacity-90" alt="">
             </div>
           </div>
           <!-- <div
