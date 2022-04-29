@@ -1,7 +1,7 @@
 <template>
   <div @keyup.up="volumeUp" @keyup.down="volumeDown" @keyup.right="seekUp" @keyup.left="seekDown" tabindex="0"
-    class=" w-screen h-screen bg-usual-background bg-left-top bg-repeat select-none">
-    <div v-if="oneStart === false"
+    class="w-screen h-screen bg-usual-background bg-left-top bg-repeat select-none overflow-hidden">
+    <!-- <div v-if="oneStart === false"
       class="absolute flex justify-center items-center top-0 bottom-0 left-0 right-0 w-full h-full bg-gray-200 bg-opacity-100 p-10 z-10">
       <div class="flex flex-col justify-center items-center h-4/5 w-1/">
         <div class="h-px w-full bg-gray-500 bg-opacity-20 mb-1"></div>
@@ -12,16 +12,10 @@
         <div class="flex justify-start items-center h-14 mt-14 mb-12"><img src="./assets/logo_pausing.svg" select-none
             class="h-full" alt="">
         </div>
-        <div class="flex justify-start items-center h-76 mb-14"><img src="./assets/artss.png" select-none
-            class="h-full shadow-lg border-4 border-gray-400 border-opacity-80" alt="">
-        </div>
-        <div class="cursor-default opacity-90 h-10 mb-14 flex justify-center items-center">
-          <div
-            class=" text-gray-100 font-normal relative p-px pr-3 pl-3 flex justify-center items-center bg-gray-300 bg-opacity-80 rounded-full hover:bg-opacity-100 cursor-pointer">
-            <span class=" text-4xl font-serif text-black">🛰</span>
-            <input ref="file" id="file" type="file" multiple @change="handlePath" accept="audio/*"
-              class="text-xs rounded-full p-0 absolute opacity-0 cursor-pointer" />
-          </div>
+        <div class="flex justify-start relative items-center h-76 mb-20 cursor-default"><img src="./assets/artss.png"
+            select-none class="h-full shadow-lg border-4 relative border-gray-400 border-opacity-80" alt="">
+          <input ref="file" id="file" type="file" multiple @change="handlePath" accept="audio/*"
+            class="text-xs rounded-full p-0 absolute opacity-0 cursor-pointer h-full w-full" />
         </div>
         <div class="h-px w-full bg-gray-500 mb-1"></div>
         <div class="h-px w-full bg-gray-500 bg-opacity-80 mb-1"></div>
@@ -31,9 +25,9 @@
         <div></div>
         <div></div>
       </div>
-    </div>
+    </div> -->
     <div class="flex flex-col w-full h-full">
-      <div class="h-1/15 w-full flex flex-col relative shadow-2xl">
+      <div class="h-1/15 flex-shrink-0 w-full flex flex-col relative shadow-2xl">
         <div ref="szer" @click.self="changeAudio"
           class="pl-2 pr-2 w-full h-full flex flex-row items-center  text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer">
           <div
@@ -177,11 +171,11 @@
         </div>
       </div>
       <audio ref="audioPlayer" @timeupdate="updateAudio()" @ended="endedAudio()"></audio>
-      <div class="flex flex-col w-full h-full relative overflow-hidden">
+      <div class="flex flex-col w-full h-full relative overflow-hidde">
         <div v-if="isPlaylist"
           class="flex flex-col justify-start items-center w-52 max-h-9/10 rounded-lg absolute overflow-hidden top-5 right-5 border-2 border-gray-400 border-opacity-90">
           <div
-            class="flex flex-shrink-0 justify-between items-center w-full h-8 text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-200 bg-opacity-30 cursor-pointer">
+            class="flex flex-shrink-0 justify-between items-center w-full h-8 text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-600 bg-opacity-80 cursor-pointer">
             <div class="ml-1 " @click="isPlaylistHandle()">
               Playlist - {{ playlist.length }} tracks
             </div>
@@ -191,7 +185,7 @@
                 class="absolute opacity-0 cursor-pointer left-0" />
             </div>
           </div>
-          <div class="overflow-hidden w-52 flex flex-col justify-start items-center pl-5">
+          <div class="overflow-hidden w-52 flex flex-col justify-start items-center pl-5 bg-gray-600 bg-opacity-80">
             <div ref="playlistDiv" @scroll="getScrollPosition" class="overflow-y-auto w-56 h-full">
               <div v-for="(track, index) in playlist" :key="index"
                 class="h-full w-full flex flex-col justify-start items-start bg-black bg-opacity-30 ">
@@ -207,8 +201,10 @@
             </div>
           </div>
         </div>
-        <div class="w-full h-full flex justify-center items-center p-40">
+        <div class="w-full h-full flex justify-center items-end overflow-hidden">
+          <canvas webgl width="1920" height="1000" ref="canvas" class="flex justify-center items-end">
 
+          </canvas>
         </div>
       </div>
     </div>
@@ -521,7 +517,21 @@ export default {
       if (this.shuffleRepeat === 3) {
         this.shuffleRepeat = 0;
       }
+
     },
+  },
+  mounted() {
+    const canvas = this.$refs.canvas;
+    const canvasctx = canvas.getContext('webgl')
+    console.log(canvasctx)
+    const hydra = new this.Hydra({ detectAudio: false, canvas: canvas, }).synth
+    hydra.noise(7, 0.3, (() => this.eqLine[6] * 0.03)).thresh(0.3, 0.03).diff(hydra.o3, 0.3).out(hydra.o1)
+    hydra.gradient([0.3, 0.3, 3]).diff(hydra.o0).blend(hydra.o1).out(hydra.o3)
+    hydra.voronoi(33, 3, 30).rotate(3, ({ time }) => Math.sin(time) * this.eqLine[19] / 2900, 0).modulateScale(hydra.o2, 0.3).color(-3, 3, 0).brightness(3).out(hydra.o0)
+    hydra.shape(30, 0.3, (() => this.eqLine[12] * 0.007)).invert().out(hydra.o2)
+
+    hydra.render(hydra.o3)
+
   },
   setup() {
     const ready = ref(false);
@@ -544,6 +554,9 @@ export default {
     const playlistScrollPosition = ref(0);
     const eqLine = ref([])
     const visualisationVer = ref([])
+    const Hydra = require('hydra-synth')
+
+
     let audioctx;
     let audioSource;
     let analyser;
@@ -551,7 +564,7 @@ export default {
     let data;
 
 
-    return { visualisationVer, oneStart, eqLine, audioSource, data, audioctx, analyser, bufferLength, ready, currentTrackIsActive, currentStateLoading, currentTrackVolume, currentTrackMaxTimeReal, playlistScrollPosition, currentTrackFromPlaylist, shuffleRepeat, isPlaylist, playlist, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
+    return { Hydra, visualisationVer, oneStart, eqLine, audioSource, data, audioctx, analyser, bufferLength, ready, currentTrackIsActive, currentStateLoading, currentTrackVolume, currentTrackMaxTimeReal, playlistScrollPosition, currentTrackFromPlaylist, shuffleRepeat, isPlaylist, playlist, currentPlayerTime, currentTrackIsPaused, currentTrackMaxTime, currentTrackName, currentTrackPlaying, currentTrackSpeed, currentTrackTime }
   }
 }
 </script>
