@@ -525,15 +525,7 @@ export default {
     const canvasctx = canvas.getContext('webgl')
     console.log(canvasctx)
     const hydra = new this.Hydra({ detectAudio: false, canvas: canvas, }).synth
-    hydra.shape(33.787, 0.2, 0.512).diff(hydra.osc(1, 0.5, 5))
-      .scale(() => Math.sin(hydra.time) + 0.868 * 0.342)
-      .repeat(() => Math.sin(hydra.time) * 8.04)
-      .modulateRotate(hydra.o0)
-      .scale(() => Math.sin(hydra.time) * ((this.eqLine[12] * 0.01) + 0.01))
-      .modulate(hydra.noise(3.912, 1.071))
-      .rotate(1, 0.389)
-      .out(hydra.o0)
-
+    hydra.src(hydra.o0).modulate(hydra.noise(() => 0.8 + (this.eqLine[4] * 0.005)), 0.005).blend(hydra.shape(4), () => 0.00001 + (this.eqLine[16] * 0.0003)).out(hydra.o0)
   },
   setup() {
     const ready = ref(false);
