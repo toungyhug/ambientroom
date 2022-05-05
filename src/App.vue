@@ -525,7 +525,17 @@ export default {
     const canvasctx = canvas.getContext('webgl')
     console.log(canvasctx)
     const hydra = new this.Hydra({ detectAudio: false, canvas: canvas, }).synth
-    hydra.src(hydra.o0).modulate(hydra.noise(() => 0.8 + (this.eqLine[4] * 0.005)), 0.005).blend(hydra.shape(4), () => 0.00001 + (this.eqLine[16] * 0.0003)).out(hydra.o0)
+    hydra.src(hydra.o0).modulate(hydra.noise(() => 0.8 + (this.eqLine[29] * 0.008)), 0.005).blend(hydra.shape(2), () => 0.00001 + (this.eqLine[1] > 148) ? (this.eqLine[1] * 0.0005) : 0).scrollY(0, () => Math.sin((this.eqLine[1] > 152) ? (this.eqLine[1] * 0.00005) : 0)).out(hydra.o0)
+
+    // setInterval(() => {
+    //   if (this.eqLine[1] > 150) {
+    //     console.log(this.eqLine[1])
+    //   }
+
+    // }, 20)
+
+
+
   },
   setup() {
     const ready = ref(false);
