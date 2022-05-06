@@ -173,7 +173,7 @@
       <audio ref="audioPlayer" @timeupdate="updateAudio()" @ended="endedAudio()"></audio>
       <div class="flex flex-col w-full h-full relative overflow-hidde">
         <div v-if="isPlaylist"
-          class="flex flex-col justify-start items-center w-52 max-h-9/10 rounded-lg absolute overflow-hidden top-5 right-5 border-2 border-gray-400 border-opacity-90">
+          class="flex flex-col justify-start items-center w-52 max-h-8/10 rounded-lg absolute overflow-hidden top-5 right-5 border-2 border-gray-400 border-opacity-90">
           <div
             class="flex flex-shrink-0 justify-between items-center w-full h-8 text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-600 bg-opacity-80 cursor-pointer">
             <div class="ml-1 " @click="isPlaylistHandle()">
@@ -294,7 +294,7 @@ export default {
       this.analyser.getByteFrequencyData(this.data)
       setInterval(() => {
         this.eqCalculate()
-      }, 10)
+      }, 5)
     },
     playAudio() {
       this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name
@@ -412,7 +412,7 @@ export default {
     eqCalculate() {
       this.analyser.getByteFrequencyData(this.data)
       for (let i = 0; i < 40; i++) {
-        this.eqLine[i] = ((this.data[i + 3]) / 1.4);
+        this.eqLine[i] = ((this.data[i + 0]) / 1.5);
       }
     },
     updateAudio() {
@@ -525,7 +525,7 @@ export default {
     const canvasctx = canvas.getContext('webgl')
     console.log(canvasctx)
     const hydra = new this.Hydra({ detectAudio: false, canvas: canvas, }).synth
-    hydra.src(hydra.o0).modulate(hydra.noise(() => 0.8 + (this.eqLine[29] * 0.008)), 0.005).blend(hydra.shape(2), () => 0.00001 + (this.eqLine[1] > 148) ? (this.eqLine[1] * 0.0005) : 0).scrollY(0, () => Math.sin((this.eqLine[1] > 152) ? (this.eqLine[1] * 0.00005) : 0)).out(hydra.o0)
+    hydra.src(hydra.o0).modulate(hydra.noise(() => 0.01 + (this.eqLine[20] * 0.02)), 0.005).blend(hydra.shape(100, 0.05, 0.4), () => 0.00001 + (this.eqLine[20] > 148) ? (this.eqLine[20] * 0.0005) : 0).scrollY(0, () => Math.sin((this.eqLine[0] > 159) ? (this.eqLine[0] * 0.00001) : 0)).out(hydra.o0)
 
     // setInterval(() => {
     //   if (this.eqLine[1] > 150) {
