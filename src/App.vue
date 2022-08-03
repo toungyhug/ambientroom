@@ -328,27 +328,17 @@
         @ended="endedAudio()"
       ></audio>
       <div class="flex flex-col w-full h-full relative overflow-hidde">
+        <div class="flex justify-end items-center p-3 absolute right-0">
+          <p
+            class="text-gray-200 font-cinzel text-sm tracking-widest text-opacity-80"
+          >
+            Visualisation - Rain
+          </p>
+        </div>
         <div
           v-if="isPlaylist"
-          class="flex flex-col justify-start items-center w-52 max-h-8/10 rounded-lg absolute overflow-hidden top-5 right-5 border-2 border-gray-400 border-opacity-90"
+          class="flex flex-col justify-start items-center w-52 max-h-8/10 rounded-lg absolute overflow-hidden top-5 right-5 border border-gray-300 border-opacity-90"
         >
-          <div
-            class="flex flex-shrink-0 justify-between items-center w-full h-8 text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-600 bg-opacity-80 cursor-pointer"
-          >
-            <div class="ml-2" @click="isPlaylistHandle()">Visuals - Rain</div>
-            <div
-              class="relative pr-2 pl-2 bg-purple-500 bg-opacity-30 border-l border-b border-gray-400 h-full w-10 text-sm hover:bg-opacity-50 cursor-pointer flex justify-center items-center"
-            >
-              +<input
-                ref="file"
-                id="file"
-                type="file"
-                multiple
-                accept="audio/*"
-                class="absolute opacity-0 cursor-pointer left-0"
-              />
-            </div>
-          </div>
           <div
             class="flex flex-shrink-0 justify-between items-center w-full h-8 text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-600 bg-opacity-80 cursor-pointer"
           >
@@ -800,9 +790,9 @@ export default {
               this.dropY = Math.floor(Math.random() * innerHeight) - 1200;
             }
             if (eqLine.value[30] > 105) {
-              this.dropYS = Math.floor(Math.random() * 21) + 14;
+              this.dropYS = Math.floor(Math.random() * 30) + 5;
             } else {
-              this.dropYS = Math.floor(Math.random() * 15) + 2;
+              this.dropYS = Math.floor(Math.random() * 15) + 1;
             }
           };
           show = () => {
@@ -817,8 +807,8 @@ export default {
               this.dropX,
               this.dropYS > 10
                 ? this.dropY +
-                    Math.floor((Math.random() * eqLine.value[7]) / 20) +
-                    1
+                    Math.floor((Math.random() * eqLine.value[7]) / 15) +
+                    5
                 : this.dropY + Math.floor(Math.random() * 3) + 1
             );
           };

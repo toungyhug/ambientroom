@@ -8,9 +8,9 @@ module.exports = {
         95: "95%",
       },
       backgroundImage: {
-        "usual-background": "url('../assets/backgrnd.png')",
-        seek: "url('../assets/seek.gif')",
-        eq: "url('../assets/eq.gif')",
+        "usual-background": "url('./assets/backgrnd.png')",
+        seek: "url('./assets/seek.gif')",
+        eq: "url('./assets/eq.gif')",
       },
       backgroundSize: {
         "120%": "120%",
