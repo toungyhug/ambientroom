@@ -335,7 +335,24 @@
           <div
             class="flex flex-shrink-0 justify-between items-center w-full h-8 text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-600 bg-opacity-80 cursor-pointer"
           >
-            <div class="ml-1" @click="isPlaylistHandle()">
+            <div class="ml-2" @click="isPlaylistHandle()">Visuals - Rain</div>
+            <div
+              class="relative pr-2 pl-2 bg-purple-500 bg-opacity-30 border-l border-b border-gray-400 h-full w-10 text-sm hover:bg-opacity-50 cursor-pointer flex justify-center items-center"
+            >
+              +<input
+                ref="file"
+                id="file"
+                type="file"
+                multiple
+                accept="audio/*"
+                class="absolute opacity-0 cursor-pointer left-0"
+              />
+            </div>
+          </div>
+          <div
+            class="flex flex-shrink-0 justify-between items-center w-full h-8 text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-600 bg-opacity-80 cursor-pointer"
+          >
+            <div class="ml-2" @click="isPlaylistHandle()">
               Playlist - {{ playlist.length }} tracks
             </div>
             <div
@@ -384,17 +401,15 @@
             </div>
           </div>
         </div>
-        <div
-          class="w-full h-full flex justify-center items-end overflow-hidden"
-        >
-          <canvas
+        <div ref="p5Canvas" id="p5Canvas" class="w-full h-full">
+          <!-- <canvas
             webgl
             width="1920"
             height="1000"
-            ref="canvas"
+            ref="canvas1"
             class="flex justify-center items-end"
-          >
-          </canvas>
+          > 
+          </canvas>-->
         </div>
       </div>
     </div>
@@ -402,7 +417,8 @@
 </template>
 
 <script>
-import { ref } from "@vue/reactivity";
+import { ref, onMounted } from "vue";
+import p5 from "p5";
 
 export default {
   name: "App",
@@ -741,32 +757,30 @@ export default {
     },
   },
   mounted() {
-    const canvas = this.$refs.canvas;
-    const canvasctx = canvas.getContext("webgl");
-    console.log(canvasctx);
-    const hydra = new this.Hydra({ detectAudio: false, canvas: canvas }).synth;
-    hydra.s0.initVideo(
-      "https://media.giphy.com/media/5kFbMBOEdWjg1nItoG/giphy.mp4"
-    );
-    hydra
-      .src(hydra.s0)
-      .diff(hydra.o0)
-      .modulateHue(hydra.src(hydra.s0))
-      .diff(hydra.o0)
-      .layer(
-        hydra
-          .osc(() => 0.1 + this.eqLine[5] * 0.12)
-          .mask(hydra.shape(54, () => 0.1 + this.eqLine[13] * 0.004, 0.036))
-      )
-      .diff(hydra.s0)
-      .out(hydra.o0);
-
+    //
+    // const canvasctx = canvas.getContext("webgl");
+    // console.log(canvasctx);
+    // const hydra = new this.Hydra({ detectAudio: false, canvas: canvas }).synth;
+    // hydra.s0.initVideo(
+    //   "https://media.giphy.com/media/5kFbMBOEdWjg1nItoG/giphy.mp4"
+    // );
+    // hydra
+    //   .src(hydra.s0)
+    //   .diff(hydra.o0)
+    //   .modulateHue(hydra.src(hydra.s0))
+    //   .diff(hydra.o0)
+    //   .layer(
+    //     hydra
+    //       .osc(() => 0.1 + this.eqLine[5] * 0.12)
+    //       .mask(hydra.shape(54, () => 0.01 + this.eqLine[13] * 0.004, 0.036))
+    //   )
+    //   .diff(hydra.s0)
+    //   .out(hydra.o0);
     // () => 1 + this.eqLine[1] * 0.008
     // setInterval(() => {
     //   if (this.eqLine[1] > 150) {
     //     console.log(this.eqLine[1])
     //   }
-
     // }, 20)
   },
   setup() {
@@ -791,12 +805,78 @@ export default {
     const eqLine = ref([]);
     const visualisationVer = ref([]);
     const Hydra = require("hydra-synth");
+    const canvas = ref(null);
+    const p5Canvas = ref(null);
 
     let audioctx;
     let audioSource;
     let analyser;
     let bufferLength;
     let data;
+
+    onMounted(() => {
+      const script = function (p5) {
+        class Drop {
+          dropX = Math.floor(Math.random() * innerWidth);
+          dropY = Math.floor(Math.random() * innerHeight) - 1200;
+          dropYS = Math.floor(Math.random() * 21) + 2;
+
+          fall = () => {
+            // console.log(this.dropYS);
+            this.dropY = this.dropY + this.dropYS;
+            if (this.dropY > innerHeight) {
+              this.dropY = Math.floor(Math.random() * innerHeight) - 1200;
+            }
+            if (eqLine.value[30] > 105) {
+              this.dropYS = Math.floor(Math.random() * 21) + 14;
+            } else {
+              this.dropYS = Math.floor(Math.random() * 15) + 2;
+            }
+          };
+          show = () => {
+            p5.stroke(
+              eqLine.value[28] * 1.8,
+              eqLine.value[32] * 2.1,
+              eqLine.value[34] * 1.7
+            );
+            p5.line(
+              this.dropX,
+              this.dropY,
+              this.dropX,
+              this.dropYS > 10
+                ? this.dropY +
+                    Math.floor((Math.random() * eqLine.value[7]) / 20) +
+                    1
+                : this.dropY + Math.floor(Math.random() * 3) + 1
+            );
+          };
+        }
+
+        p5.windowResized = () => {
+          p5.resizeCanvas(innerWidth, innerHeight);
+        };
+
+        p5.setup = () => {
+          let canvas = p5.createCanvas(innerWidth, innerHeight);
+          canvas.parent("p5Canvas");
+        };
+
+        let drops = new Array();
+        for (let i = 0; i < 300; i++) {
+          drops[i] = new Drop();
+        }
+
+        p5.draw = () => {
+          p5.background(30);
+          for (let i = 0; i < drops.length; i++) {
+            drops[i].fall();
+            drops[i].show();
+          }
+        };
+      };
+
+      new p5(script);
+    });
 
     return {
       Hydra,
@@ -825,6 +905,8 @@ export default {
       currentTrackPlaying,
       currentTrackSpeed,
       currentTrackTime,
+      p5Canvas,
+      canvas,
     };
   },
 };
