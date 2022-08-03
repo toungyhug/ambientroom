@@ -756,33 +756,6 @@ export default {
       }
     },
   },
-  mounted() {
-    //
-    // const canvasctx = canvas.getContext("webgl");
-    // console.log(canvasctx);
-    // const hydra = new this.Hydra({ detectAudio: false, canvas: canvas }).synth;
-    // hydra.s0.initVideo(
-    //   "https://media.giphy.com/media/5kFbMBOEdWjg1nItoG/giphy.mp4"
-    // );
-    // hydra
-    //   .src(hydra.s0)
-    //   .diff(hydra.o0)
-    //   .modulateHue(hydra.src(hydra.s0))
-    //   .diff(hydra.o0)
-    //   .layer(
-    //     hydra
-    //       .osc(() => 0.1 + this.eqLine[5] * 0.12)
-    //       .mask(hydra.shape(54, () => 0.01 + this.eqLine[13] * 0.004, 0.036))
-    //   )
-    //   .diff(hydra.s0)
-    //   .out(hydra.o0);
-    // () => 1 + this.eqLine[1] * 0.008
-    // setInterval(() => {
-    //   if (this.eqLine[1] > 150) {
-    //     console.log(this.eqLine[1])
-    //   }
-    // }, 20)
-  },
   setup() {
     const ready = ref(false);
     const oneStart = ref(false);
@@ -804,7 +777,6 @@ export default {
     const playlistScrollPosition = ref(0);
     const eqLine = ref([]);
     const visualisationVer = ref([]);
-    const Hydra = require("hydra-synth");
     const canvas = ref(null);
     const p5Canvas = ref(null);
 
@@ -879,7 +851,6 @@ export default {
     });
 
     return {
-      Hydra,
       visualisationVer,
       oneStart,
       eqLine,
