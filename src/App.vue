@@ -34,15 +34,18 @@
     </div> -->
     <div class="flex flex-col w-full h-full">
       <div
-        class="h-1/15 flex-shrink-0 w-full flex flex-col relative shadow-2xl"
-      >
+        id="waveform"
+        class="h-1/15 flex-shrink-0 w-full flex flex-col relative shadow-2xl z-0"
+        :style="{ opacity: 0.1 + eqLine[0] / 500 }"
+      ></div>
+      <div class="h-1/15 w-full absolute left-0 top-0">
         <div
           ref="szer"
           @click.self="changeAudio"
-          class="pl-2 pr-2 w-full h-full flex flex-row items-center text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer"
+          class="pl-2 pr-2 w-full h-full flex flex-row items-center text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer z-30"
         >
           <div
-            class="flex justify-center items-center border border-gray-500 border-opacity-90 rounded-full h-9 pointer-events-none"
+            class="flex justify-center items-center border border-gray-700 border-opacity-90 rounded-full h-9 pointer-events-none bg-zinc-800 bg-opacity-70"
           >
             <div
               class="h-8 w-16 flex justify-center items-center pointer-events-none text-base font-light tracking-widest ml-2 text-gray-200 font-nunito"
@@ -50,7 +53,7 @@
               {{ currentTrackTime === null ? "00:00" : currentTrackTime }}
             </div>
             <div
-              class="flex justify-center items-center font-normal mr-2 ml-2 text-2xs bg-gray-500 bg-opacity-30 rounded-full h-9"
+              class="flex justify-center items-center font-normal mr-2 ml-2 text-2xs bg-zinc-800 bg-opacity-50 rounded-full h-8"
             >
               <div
                 class="flex w-44 justify-around items-center pointer-events-auto"
@@ -217,11 +220,11 @@
           </div>
           <div
             @click="changeShuffleRepeat()"
-            class="flex h-6 w-16 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3"
+            class="flex h-7 w-16 flex-row justify-center items-center border border-gray-700 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3"
           >
             <div
               v-if="shuffleRepeat === 0"
-              class="h-full w-full flex justify-center items-center bg-gray-300 bg-opacity-30 rounded-full"
+              class="h-full w-full flex justify-center items-center bg-zinc-800 bg-opacity-60 rounded-full"
             >
               <img
                 src="./assets/icons/order2_icon.svg"
@@ -231,7 +234,7 @@
             </div>
             <div
               v-else-if="shuffleRepeat === 1"
-              class="h-full w-full flex justify-center items-center bg-purple-300 bg-opacity-40 rounded-full"
+              class="h-full w-full flex justify-center items-center bg-purple-400 bg-opacity-50 rounded-full"
             >
               <img
                 src="./assets/icons/repeat_icon.svg"
@@ -252,11 +255,11 @@
           </div>
           <div
             @click="isPlaylistHandle()"
-            class="flex h-6 w-16 flex-row justify-center items-center border border-gray-500 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-2"
+            class="flex h-7 w-16 flex-row justify-center items-center border border-gray-700 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-2"
           >
             <div
               v-if="isPlaylist === true"
-              class="h-full w-full flex justify-center items-center bg-green-300 bg-opacity-30 rounded-full"
+              class="h-full w-full flex justify-center items-center bg-green-400 bg-opacity-50 rounded-full"
             >
               <img
                 src="./assets/icons/playlist_icon.svg"
@@ -266,7 +269,7 @@
             </div>
             <div
               v-else-if="isPlaylist === false"
-              class="h-full w-full flex justify-center items-center bg-gray-300 bg-opacity-30 rounded-full"
+              class="h-full w-full flex justify-center items-center bg-zinc-800 bg-opacity-60 rounded-full"
             >
               <img
                 src="./assets/icons/playlist_icon.svg"
@@ -291,7 +294,7 @@
             class="w-36 h-full flex p-1.5 pt-4 pb-4 mr-1 ml-2 pointer-events-none rounded-2xl"
           >
             <div
-              class="w-full h-full bg-gradient-to-tr from-grayy via-grayymore to-grayymoree flex items-end overflow-hidden rounded-2xl"
+              class="w-full h-full bg-grayy bg-opacity-90 flex items-end overflow-hidden rounded-2xl"
             >
               <div
                 v-for="(line, inddd) in eqLine"
@@ -306,10 +309,10 @@
             </div>
           </div>
         </div>
-        <div v-if="ready === true">
+        <div>
           <div
             v-if="currentTrackIsPaused === true || currentTrackPlaying === true"
-            class="h-0.5 relative bottom-0 left-0 transition rounded-full w-full"
+            class="h-0.5 bottom-0 left-0 transition rounded-full w-full"
           >
             <div
               class="h-0.5 absolute bottom-0 left-0 transition rounded-full bg-seek bg-bottom bg-auto"
@@ -322,13 +325,14 @@
           ></div>
         </div>
       </div>
+
       <audio
         ref="audioPlayer"
         @timeupdate="updateAudio()"
         @ended="endedAudio()"
       ></audio>
       <div class="flex flex-col w-full h-full relative overflow-hidde">
-        <div class="flex justify-end items-center p-3 absolute right-0">
+        <div class="flex items-center p-3 absolute left-0">
           <p
             class="text-gray-200 font-cinzel text-sm tracking-widest text-opacity-80"
           >
@@ -409,6 +413,7 @@
 <script>
 import { ref, onMounted } from "vue";
 import p5 from "p5";
+import WaveSurfer from "wavesurfer.js";
 
 export default {
   name: "App",
@@ -476,12 +481,22 @@ export default {
         this.eq();
         this.oneStart = true;
       }
+
+      this.wavesurfer.load(this.$refs.audioPlayer);
       this.currentStateLoading = false;
     },
     eq() {
       this.audioSource = this.audioctx.createMediaElementSource(
         this.$refs.audioPlayer
       );
+      this.wavesurfer = WaveSurfer.create({
+        container: "#waveform",
+        barHeight: 0.9,
+        barWidth: 1.2,
+        barRadius: 2,
+        barGap: 0.5,
+        partialRender: true,
+      });
       this.analyser = this.audioctx.createAnalyser();
       this.audioSource.connect(this.analyser);
       this.analyser.connect(this.audioctx.destination);
@@ -489,6 +504,7 @@ export default {
       this.bufferLength = this.analyser.frequencyBinCount;
       this.data = new Uint8Array(this.bufferLength);
       this.analyser.getByteFrequencyData(this.data);
+
       setInterval(() => {
         this.eqCalculate();
       }, 5);
@@ -574,6 +590,7 @@ export default {
       this.currentStateLoading = true;
       this.$refs.audioPlayer.load();
       this.$refs.audioPlayer.currentTime = 0;
+      this.wavesurfer.load(this.$refs.audioPlayer);
       this.currentTrackPlaying = false;
       this.currentTrackIsPaused = true;
       this.currentPlayerTime = 0;
@@ -766,9 +783,14 @@ export default {
     const currentTrackFromPlaylist = ref(null);
     const playlistScrollPosition = ref(0);
     const eqLine = ref([]);
+    const waveForm = ref([]);
     const visualisationVer = ref([]);
     const canvas = ref(null);
     const p5Canvas = ref(null);
+
+    let wavesurfer;
+    let source;
+    let songLength;
 
     let audioctx;
     let audioSource;
@@ -841,9 +863,11 @@ export default {
     });
 
     return {
+      wavesurfer,
       visualisationVer,
       oneStart,
       eqLine,
+      waveForm,
       audioSource,
       data,
       audioctx,
