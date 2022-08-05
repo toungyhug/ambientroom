@@ -7,21 +7,42 @@
     tabindex="0"
     class="w-screen h-screen bg-usual-background bg-left-top bg-repeat select-none overflow-hidden"
   >
-    <!-- <div v-if="oneStart === false"
-      class="absolute flex justify-center items-center top-0 bottom-0 left-0 right-0 w-full h-full bg-gray-200 bg-opacity-100 p-10 z-10">
+    <div
+      v-if="oneStart === false"
+      class="absolute flex justify-center items-center top-0 bottom-0 left-0 right-0 w-full h-full bg-gray-200 bg-opacity-100 p-10 z-10"
+    >
       <div class="flex flex-col justify-center items-center h-4/5 w-1/">
         <div class="h-px w-full bg-gray-500 bg-opacity-20 mb-1"></div>
         <div class="h-px w-full bg-gray-500 bg-opacity-40 mb-1"></div>
         <div class="h-px w-full bg-gray-500 bg-opacity-60 mb-1"></div>
         <div class="h-px w-full bg-gray-500 bg-opacity-80 mb-1"></div>
         <div class="h-px w-full bg-gray-500 mb-1"></div>
-        <div class="flex justify-start items-center h-14 mt-14 mb-12"><img src="./assets/logo_pausing.svg" select-none
-            class="h-full" alt="">
+        <div class="flex justify-start items-center h-14 mt-14 mb-12">
+          <img
+            src="./assets/logo_pausing.svg"
+            select-none
+            class="h-full"
+            alt=""
+          />
         </div>
-        <div class="flex justify-start relative items-center h-76 mb-20 cursor-default"><img src="./assets/artss.png"
-            select-none class="h-full shadow-lg border-4 relative border-gray-400 border-opacity-80" alt="">
-          <input ref="file" id="file" type="file" multiple @change="handlePath" accept="audio/*"
-            class="text-xs rounded-full p-0 absolute opacity-0 cursor-pointer h-full w-full" />
+        <div
+          class="flex justify-start relative items-center h-76 mb-20 cursor-default"
+        >
+          <img
+            src="./assets/artss.png"
+            select-none
+            class="h-full shadow-lg border-4 relative border-gray-400 border-opacity-80"
+            alt=""
+          />
+          <input
+            ref="file"
+            id="file"
+            type="file"
+            multiple
+            @change="handlePath"
+            accept="audio/*"
+            class="text-xs rounded-full p-0 absolute opacity-0 cursor-pointer h-full w-full"
+          />
         </div>
         <div class="h-px w-full bg-gray-500 mb-1"></div>
         <div class="h-px w-full bg-gray-500 bg-opacity-80 mb-1"></div>
@@ -31,7 +52,7 @@
         <div></div>
         <div></div>
       </div>
-    </div> -->
+    </div>
     <div class="flex flex-col w-full h-full">
       <div
         id="waveform"
@@ -495,7 +516,6 @@ export default {
         barWidth: 1.2,
         barRadius: 2,
         barGap: 0.5,
-        partialRender: true,
       });
       this.analyser = this.audioctx.createAnalyser();
       this.audioSource.connect(this.analyser);
