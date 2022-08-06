@@ -7,7 +7,7 @@
     tabindex="0"
     class="w-screen h-screen bg-usual-background bg-left-top bg-repeat select-none overflow-hidden"
   >
-    <div
+    <!-- <div
       v-if="oneStart === false"
       class="absolute flex justify-center items-center top-0 bottom-0 left-0 right-0 w-full h-full bg-gray-200 bg-opacity-100 p-10 z-10"
     >
@@ -52,7 +52,7 @@
         <div></div>
         <div></div>
       </div>
-    </div>
+    </div> -->
     <div class="flex flex-col w-full h-full">
       <div
         id="waveform"
@@ -318,11 +318,11 @@
               class="w-full h-full bg-grayy bg-opacity-90 flex items-end overflow-hidden rounded-2xl"
             >
               <div
-                v-for="(line, inddd) in eqLine"
+                v-for="(line, inddd) in eqForm"
                 :key="inddd"
                 class="w-full bg-gray-300 bg-opacity-70 rounded-full"
                 :style="{
-                  height: line - (80 - inddd * 1.1) + '%',
+                  height: line - (100 - inddd * 0.2) + '%',
                   opacity: currentTrackVolume * 150 + '%',
                   filter: ' brightness(' + line * 0.7 + '%) ',
                 }"
@@ -415,6 +415,23 @@
               </div>
             </div>
           </div>
+        </div>
+        <div class="w-full flex justify-end items-center">
+          <input
+            type="radio"
+            ref="slider"
+            name="r"
+            value="-70"
+            @change="changeEq"
+          />
+          <input
+            type="radio"
+            ref="slider"
+            name="r"
+            value="0"
+            checked
+            @change="changeEq"
+          />
         </div>
         <div ref="p5Canvas" id="p5Canvas" class="w-full h-full">
           <!-- <canvas
@@ -517,17 +534,30 @@ export default {
         barRadius: 2,
         barGap: 0.5,
       });
+
+      this.low = this.audioctx.createBiquadFilter();
+      this.low.type = "lowshelf";
+      this.low.frequency.value = 40;
+      this.low.gain.value = 0;
+      this.audioSource.connect(this.low);
+
       this.analyser = this.audioctx.createAnalyser();
-      this.audioSource.connect(this.analyser);
-      this.analyser.connect(this.audioctx.destination);
-      this.analyser.fftSize = 256;
       this.bufferLength = this.analyser.frequencyBinCount;
       this.data = new Uint8Array(this.bufferLength);
       this.analyser.getByteFrequencyData(this.data);
+      this.low.connect(this.analyser);
+      this.analyser.connect(this.audioctx.destination);
 
       setInterval(() => {
         this.eqCalculate();
       }, 5);
+    },
+    changeEq(value) {
+      console.log(value.target.value);
+
+      this.low.gain.value = value.target.value;
+      // console.log(this.analyser);
+      // console.log(this.low);
     },
     playAudio() {
       this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name;
@@ -658,8 +688,13 @@ export default {
     },
     eqCalculate() {
       this.analyser.getByteFrequencyData(this.data);
-      for (let i = 0; i < 40; i++) {
-        this.eqLine[i] = this.data[i + 0] / 1.5;
+      for (let i = 0; i < 200; i++) {
+        this.eqLine[i] = this.data[i];
+        if (i < 20) {
+          this.eqForm[i] = this.data[i] * 0.8;
+        } else {
+          this.eqForm[i] = this.data[i];
+        }
       }
     },
     updateAudio() {
@@ -803,6 +838,7 @@ export default {
     const currentTrackFromPlaylist = ref(null);
     const playlistScrollPosition = ref(0);
     const eqLine = ref([]);
+    const eqForm = ref([]);
     const waveForm = ref([]);
     const visualisationVer = ref([]);
     const canvas = ref(null);
@@ -811,7 +847,7 @@ export default {
     let wavesurfer;
     let source;
     let songLength;
-
+    let low;
     let audioctx;
     let audioSource;
     let analyser;
@@ -831,7 +867,7 @@ export default {
             if (this.dropY > innerHeight) {
               this.dropY = Math.floor(Math.random() * innerHeight) - 1200;
             }
-            if (eqLine.value[30] > 105) {
+            if (eqLine.value[0] > 150) {
               this.dropYS = Math.floor(Math.random() * 30) + 5;
             } else {
               this.dropYS = Math.floor(Math.random() * 15) + 1;
@@ -887,6 +923,7 @@ export default {
       visualisationVer,
       oneStart,
       eqLine,
+      eqForm,
       waveForm,
       audioSource,
       data,
@@ -912,6 +949,7 @@ export default {
       currentTrackTime,
       p5Canvas,
       canvas,
+      low,
     };
   },
 };
