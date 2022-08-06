@@ -241,7 +241,7 @@
           </div>
           <div
             @click="changeShuffleRepeat()"
-            class="flex h-7 w-16 flex-row justify-center items-center border border-gray-700 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3"
+            class="flex h-7 w-14 flex-row justify-center items-center border border-gray-700 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3"
           >
             <div
               v-if="shuffleRepeat === 0"
@@ -276,7 +276,7 @@
           </div>
           <div
             @click="isPlaylistHandle()"
-            class="flex h-7 w-16 flex-row justify-center items-center border border-gray-700 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-2"
+            class="flex h-7 w-14 flex-row justify-center items-center border border-gray-700 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3"
           >
             <div
               v-if="isPlaylist === true"
@@ -295,6 +295,31 @@
               <img
                 src="./assets/icons/playlist_icon.svg"
                 class="h-4 filter invert opacity-70"
+                alt=""
+              />
+            </div>
+          </div>
+          <div
+            @click="isEQHandle()"
+            class="flex h-7 w-14 flex-row justify-center items-center border border-gray-700 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-2"
+          >
+            <div
+              v-if="isEQ === true"
+              class="h-full w-full flex justify-center items-center bg-sky-400 bg-opacity-40 rounded-full"
+            >
+              <img
+                src="./assets/icons/eq_icon.svg"
+                class="h-5 filter invert opacity-70"
+                alt=""
+              />
+            </div>
+            <div
+              v-else-if="isEQ === false"
+              class="h-full w-full flex justify-center items-center bg-zinc-800 bg-opacity-60 rounded-full"
+            >
+              <img
+                src="./assets/icons/eq_icon.svg"
+                class="h-5 filter invert opacity-70"
                 alt=""
               />
             </div>
@@ -346,7 +371,6 @@
           ></div>
         </div>
       </div>
-
       <audio
         ref="audioPlayer"
         @timeupdate="updateAudio()"
@@ -359,6 +383,41 @@
           >
             Visualisation - Rain
           </p>
+        </div>
+        <div
+          v-if="isEQ"
+          class="flex flex-col justify-start items-center w-52 max-h-8/10 rounded-lg absolute overflow-hidden top-5 right-5 border border-gray-500 border-opacity-90"
+        >
+          <div
+            class="flex flex-col flex-shrink-0 justify-between items-center w-full text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-600 bg-opacity-80"
+          >
+            <div class="p-2">
+              <p>FILTER STORE</p>
+            </div>
+            <div
+              class="flex justify-between items-center w-full bg-zinc-800 bg-opacity-50 p-2"
+            >
+              <div>
+                <p class="p-1">Bass filter</p>
+              </div>
+              <div>
+                <button
+                  @click="bassFilterHandler(-60)"
+                  v-if="!bassFilter"
+                  class="p-1 pr-4 pl-4 bg-red-500 bg-opacity-70 rounded-lg hover:opacity-90"
+                >
+                  OFF
+                </button>
+                <button
+                  @click="bassFilterHandler(0)"
+                  v-else
+                  class="p-1 pr-4 pl-4 bg-green-500 bg-opacity-70 rounded-lg hover:opacity-90"
+                >
+                  ON
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         <div
           v-if="isPlaylist"
@@ -415,23 +474,6 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="w-full flex justify-end items-center">
-          <input
-            type="radio"
-            ref="slider"
-            name="r"
-            value="-70"
-            @change="changeEq"
-          />
-          <input
-            type="radio"
-            ref="slider"
-            name="r"
-            value="0"
-            checked
-            @change="changeEq"
-          />
         </div>
         <div ref="p5Canvas" id="p5Canvas" class="w-full h-full">
           <!-- <canvas
@@ -490,6 +532,7 @@ export default {
       this.currentTrackIsActive = true;
       if (file.target.files.length > 1) {
         this.isPlaylist = true;
+        this.isEQ = false;
       }
       this.currentStateLoading = true;
       for (let i = 0; i < file.target.files.length; i++) {
@@ -537,7 +580,7 @@ export default {
 
       this.low = this.audioctx.createBiquadFilter();
       this.low.type = "lowshelf";
-      this.low.frequency.value = 40;
+      this.low.frequency.value = 50;
       this.low.gain.value = 0;
       this.audioSource.connect(this.low);
 
@@ -552,12 +595,9 @@ export default {
         this.eqCalculate();
       }, 5);
     },
-    changeEq(value) {
-      console.log(value.target.value);
-
-      this.low.gain.value = value.target.value;
-      // console.log(this.analyser);
-      // console.log(this.low);
+    bassFilterHandler(value) {
+      this.bassFilter = !this.bassFilter;
+      this.low.gain.value = value;
     },
     playAudio() {
       this.currentTrackName = this.playlist[this.currentTrackFromPlaylist].name;
@@ -583,6 +623,15 @@ export default {
         }, 50);
       }
       this.isPlaylist = !this.isPlaylist;
+      if (this.isEQ == true && this.isPlaylist == true) {
+        this.isEQ = false;
+      }
+    },
+    isEQHandle() {
+      this.isEQ = !this.isEQ;
+      if (this.isEQ == true && this.isPlaylist == true) {
+        this.isPlaylist = false;
+      }
     },
     getScrollPosition(e) {
       this.playlistScrollPosition = e.target.scrollTop;
@@ -835,6 +884,7 @@ export default {
     const shuffleRepeat = ref(0);
     const playlist = ref([]);
     const isPlaylist = ref(false);
+    const isEQ = ref(false);
     const currentTrackFromPlaylist = ref(null);
     const playlistScrollPosition = ref(0);
     const eqLine = ref([]);
@@ -853,6 +903,8 @@ export default {
     let analyser;
     let bufferLength;
     let data;
+    let bassFilter;
+    let reeverb;
 
     onMounted(() => {
       const script = function (p5) {
@@ -939,6 +991,7 @@ export default {
       currentTrackFromPlaylist,
       shuffleRepeat,
       isPlaylist,
+      isEQ,
       playlist,
       currentPlayerTime,
       currentTrackIsPaused,
@@ -950,6 +1003,8 @@ export default {
       p5Canvas,
       canvas,
       low,
+      bassFilter,
+      reeverb,
     };
   },
 };
