@@ -919,7 +919,7 @@ export default {
             if (this.dropY > innerHeight) {
               this.dropY = Math.floor(Math.random() * innerHeight) - 1200;
             }
-            if (eqLine.value[0] > 150) {
+            if (eqLine.value[0] > 140) {
               this.dropYS = Math.floor(Math.random() * 30) + 5;
             } else {
               this.dropYS = Math.floor(Math.random() * 15) + 1;
