@@ -4,6 +4,7 @@
     @keyup.down="volumeDown"
     @keyup.right="seekUp"
     @keyup.left="seekDown"
+    @keyup.space="pauseHandler"
     tabindex="0"
     class="w-screen h-screen bg-usual-background bg-left-top bg-repeat select-none overflow-hidden"
   >
@@ -402,7 +403,7 @@
               </div>
               <div>
                 <button
-                  @click="bassFilterHandler(-60)"
+                  @click="bassFilterHandler(-65)"
                   v-if="!bassFilter"
                   class="p-1 pr-4 pl-4 bg-red-500 bg-opacity-70 rounded-lg hover:opacity-90"
                 >
@@ -676,6 +677,13 @@ export default {
       this.$refs.audioPlayer.pause();
       this.currentTrackPlaying = false;
       this.currentTrackIsPaused = true;
+    },
+    pauseHandler() {
+      if (this.currentTrackPlaying == false) {
+        this.playAudio();
+      } else {
+        this.pauseAudio();
+      }
     },
     stopAudio() {
       this.currentTrackIsActive = false;
