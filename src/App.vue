@@ -60,14 +60,22 @@
         class="h-1/15 flex-shrink-0 w-full flex flex-col relative shadow-2xl z-0"
         :style="{ opacity: 0.1 + eqLine[0] / 500 }"
       ></div>
-      <div class="h-1/15 w-full absolute left-0 top-0">
+      <div
+        v-on:mouseenter="mouseOverTrackHandler(true)"
+        v-on:mouseleave="mouseOverTrackHandler(false)"
+        class="h-1/15 w-full absolute left-0 top-0"
+      >
         <div
           ref="szer"
           @click.self="changeAudio"
           class="pl-2 pr-2 w-full h-full flex flex-row items-center text-white bg-black bg-opacity-20 font-urbanist font-normal tracking-widest cursor-pointer z-30"
         >
           <div
-            class="flex justify-center items-center border border-gray-700 border-opacity-90 rounded-full h-9 pointer-events-none bg-zinc-800 bg-opacity-70"
+            class="flex justify-center items-center border border-gray-700 border-opacity-90 hover:opacity-100 transition-all duration-75 rounded-full h-9 pointer-events-none bg-zinc-800"
+            :class="{
+              'opacity-70': mouseOverTrack == true,
+              'opacity-40': mouseOverTrack == false,
+            }"
           >
             <div
               class="h-8 w-16 flex justify-center items-center pointer-events-none text-base font-light tracking-widest ml-2 text-gray-200 font-nunito"
@@ -221,7 +229,7 @@
           >
             <div
               v-if="currentStateLoading === false"
-              class="justify-center text-xl tracking-widest bg-gray-200 bg-opacity-70 pl-10 pr-10 text-black text-opacity-70 font-semibold font-cinzel rounded-full"
+              class="justify-center text-xl tracking-widest bg-transparent text-white hover:text-black hover:bg-gray-200 hover:bg-opacity-70 font-normal pl-10 pr-10 text-opacity-70 transition-all duration-75 font-cinzel rounded-full"
             >
               {{ currentTrackName }}
             </div>
@@ -242,7 +250,11 @@
           </div>
           <div
             @click="changeShuffleRepeat()"
-            class="flex h-7 w-14 flex-row justify-center items-center border border-gray-700 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3"
+            class="flex h-7 w-14 flex-row justify-center items-center border border-gray-700 rounded-full hover:opacity-100 transition-all duration-75 cursor-pointer ml-0 mr-3"
+            :class="{
+              'opacity-70': mouseOverTrack == true,
+              'opacity-40': mouseOverTrack == false,
+            }"
           >
             <div
               v-if="shuffleRepeat === 0"
@@ -277,7 +289,11 @@
           </div>
           <div
             @click="isPlaylistHandle()"
-            class="flex h-7 w-14 flex-row justify-center items-center border border-gray-700 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-3"
+            class="flex h-7 w-14 flex-row justify-center items-center border border-gray-700 rounded-full hover:opacity-100 transition-all duration-75 cursor-pointer ml-0 mr-3"
+            :class="{
+              'opacity-70': mouseOverTrack == true,
+              'opacity-40': mouseOverTrack == false,
+            }"
           >
             <div
               v-if="isPlaylist === true"
@@ -302,7 +318,11 @@
           </div>
           <div
             @click="isEQHandle()"
-            class="flex h-7 w-14 flex-row justify-center items-center border border-gray-700 rounded-full hover:opacity-70 cursor-pointer ml-0 mr-2"
+            class="flex h-7 w-14 flex-row justify-center items-center border border-gray-700 rounded-full hover:opacity-100 transition-all duration-75 cursor-pointer ml-0 mr-2"
+            :class="{
+              'opacity-70': mouseOverTrack == true,
+              'opacity-40': mouseOverTrack == false,
+            }"
           >
             <div
               v-if="isEQ === true"
@@ -346,7 +366,7 @@
               <div
                 v-for="(line, inddd) in eqForm"
                 :key="inddd"
-                class="w-full bg-gray-300 bg-opacity-70 rounded-full"
+                class="w-full bg-gray-300 bg-opacity-50 rounded-full"
                 :style="{
                   height: line - (100 - inddd * 0.2) + '%',
                   opacity: currentTrackVolume * 150 + '%',
@@ -380,15 +400,49 @@
       <div class="flex flex-col w-full h-full relative overflow-hidde">
         <div class="flex items-center p-3 absolute left-0">
           <p
-            class="text-gray-200 font-cinzel text-sm tracking-widest text-opacity-80"
+            class="text-gray-200 font-cinzel text-xs tracking-widest text-opacity-80"
           >
-            Visualisation - Rain
+            Visualisation - {{ currentVisualisation }}
           </p>
         </div>
         <div
           v-if="isEQ"
           class="flex flex-col justify-start items-center w-52 max-h-8/10 rounded-lg absolute overflow-hidden top-5 right-5 border border-gray-500 border-opacity-90"
         >
+          <div
+            class="flex flex-col flex-shrink-0 justify-between items-center w-full text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-600 bg-opacity-80"
+          >
+            <div class="p-2">
+              <p>Visualisations</p>
+            </div>
+            <div
+              class="flex justify-between items-center w-full bg-zinc-800 bg-opacity-50 p-2"
+            >
+              <div
+                @click="visualisationHandler"
+                class="flex justify-center items-center cursor-pointer ml-1 mr-1 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full h-5 w-8 hover:opacity-80"
+              >
+                <img
+                  src="./assets/icons/play_icon.svg"
+                  class="h-3 filter grayscale rotate-180 opacity-90"
+                  alt=""
+                />
+              </div>
+              <div>
+                <p class="p-1">{{ currentVisualisation }}</p>
+              </div>
+              <div
+                @click="visualisationHandler"
+                class="flex justify-center items-center cursor-pointer ml-1 mr-1 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full h-5 w-8 hover:opacity-80"
+              >
+                <img
+                  src="./assets/icons/play_icon.svg"
+                  class="h-3 filter grayscale opacity-90"
+                  alt=""
+                />
+              </div>
+            </div>
+          </div>
           <div
             class="flex flex-col flex-shrink-0 justify-between items-center w-full text-gray-300 tracking-widest font-medium uppercase text-xs bg-gray-600 bg-opacity-80"
           >
@@ -874,6 +928,9 @@ export default {
         this.shuffleRepeat = 0;
       }
     },
+    mouseOverTrackHandler(opt) {
+      this.mouseOverTrack = opt;
+    },
   },
   setup() {
     const ready = ref(false);
@@ -901,6 +958,8 @@ export default {
     const visualisationVer = ref([]);
     const canvas = ref(null);
     const p5Canvas = ref(null);
+    const mouseOverTrack = ref(false);
+    const currentVisualisation = ref("rain");
 
     let wavesurfer;
     let source;
@@ -915,67 +974,68 @@ export default {
     let reeverb;
 
     onMounted(() => {
-      const script = function (p5) {
-        class Drop {
-          dropX = Math.floor(Math.random() * innerWidth);
-          dropY = Math.floor(Math.random() * innerHeight) - 1200;
-          dropYS = Math.floor(Math.random() * 21) + 2;
+      if (currentVisualisation.value === "rain") {
+        const script = function (p5) {
+          class Drop {
+            dropX = Math.floor(Math.random() * innerWidth);
+            dropY = Math.floor(Math.random() * innerHeight) - 1200;
+            dropYS = Math.floor(Math.random() * 21) + 2;
 
-          fall = () => {
-            // console.log(this.dropYS);
-            this.dropY = this.dropY + this.dropYS;
-            if (this.dropY > innerHeight) {
-              this.dropY = Math.floor(Math.random() * innerHeight) - 1200;
-            }
-            if (eqLine.value[0] > 140) {
-              this.dropYS = Math.floor(Math.random() * 30) + 5;
-            } else {
-              this.dropYS = Math.floor(Math.random() * 15) + 1;
-            }
-          };
-          show = () => {
-            p5.stroke(
-              eqLine.value[28] * 1.8,
-              eqLine.value[32] * 2.1,
-              eqLine.value[34] * 1.7
-            );
-            p5.line(
-              this.dropX,
-              this.dropY,
-              this.dropX,
-              this.dropYS > 10
-                ? this.dropY +
-                    Math.floor((Math.random() * eqLine.value[7]) / 15) +
-                    5
-                : this.dropY + Math.floor(Math.random() * 3) + 1
-            );
-          };
-        }
-
-        p5.windowResized = () => {
-          p5.resizeCanvas(innerWidth, innerHeight);
-        };
-
-        p5.setup = () => {
-          let canvas = p5.createCanvas(innerWidth, innerHeight);
-          canvas.parent("p5Canvas");
-        };
-
-        let drops = new Array();
-        for (let i = 0; i < 300; i++) {
-          drops[i] = new Drop();
-        }
-
-        p5.draw = () => {
-          p5.background(30);
-          for (let i = 0; i < drops.length; i++) {
-            drops[i].fall();
-            drops[i].show();
+            fall = () => {
+              // console.log(this.dropYS);
+              this.dropY = this.dropY + this.dropYS;
+              if (this.dropY > innerHeight) {
+                this.dropY = Math.floor(Math.random() * innerHeight) - 1200;
+              }
+              if (eqLine.value[0] > 140) {
+                this.dropYS = Math.floor(Math.random() * 30) + 5;
+              } else {
+                this.dropYS = Math.floor(Math.random() * 15) + 1;
+              }
+            };
+            show = () => {
+              p5.stroke(
+                eqLine.value[28] * 1.8,
+                eqLine.value[32] * 2.1,
+                eqLine.value[34] * 1.7
+              );
+              p5.line(
+                this.dropX,
+                this.dropY,
+                this.dropX,
+                this.dropYS > 10
+                  ? this.dropY +
+                      Math.floor((Math.random() * eqLine.value[7]) / 15) +
+                      5
+                  : this.dropY + Math.floor(Math.random() * 3) + 1
+              );
+            };
           }
-        };
-      };
 
-      new p5(script);
+          p5.windowResized = () => {
+            p5.resizeCanvas(innerWidth, innerHeight);
+          };
+
+          p5.setup = () => {
+            let canvas = p5.createCanvas(innerWidth, innerHeight);
+            canvas.parent("p5Canvas");
+          };
+
+          let drops = new Array();
+          for (let i = 0; i < 300; i++) {
+            drops[i] = new Drop();
+          }
+
+          p5.draw = () => {
+            p5.background(30);
+            for (let i = 0; i < drops.length; i++) {
+              drops[i].fall();
+              drops[i].show();
+            }
+          };
+        };
+        new p5(script);
+      }
     });
 
     return {
@@ -1013,6 +1073,8 @@ export default {
       low,
       bassFilter,
       reeverb,
+      mouseOverTrack,
+      currentVisualisation,
     };
   },
 };
