@@ -432,7 +432,7 @@
                 <p class="p-1">{{ currentVisualisation }}</p>
               </div>
               <div
-                @click="visualisationHandler"
+                @click="visualizationHandler"
                 class="flex justify-center items-center cursor-pointer ml-1 mr-1 border border-gray-500 bg-gray-400 bg-opacity-30 rounded-full h-5 w-8 hover:opacity-80"
               >
                 <img
@@ -530,7 +530,12 @@
             </div>
           </div>
         </div>
-        <div ref="p5Canvas" id="p5Canvas" class="w-full h-full">
+        <div
+          v-if="currentVisualisation == 'rain'"
+          ref="p5Canvas"
+          id="p5Canvas"
+          class="w-full h-full"
+        >
           <!-- <canvas
             webgl
             width="1920"
@@ -931,6 +936,13 @@ export default {
     mouseOverTrackHandler(opt) {
       this.mouseOverTrack = opt;
     },
+    visualizationHandler() {
+      if (this.currentVisualisation == "mesh") {
+        this.currentVisualisation = "rain";
+      } else {
+        this.currentVisualisation = "mesh";
+      }
+    },
   },
   setup() {
     const ready = ref(false);
@@ -974,68 +986,66 @@ export default {
     let reeverb;
 
     onMounted(() => {
-      if (currentVisualisation.value === "rain") {
-        const script = function (p5) {
-          class Drop {
-            dropX = Math.floor(Math.random() * innerWidth);
-            dropY = Math.floor(Math.random() * innerHeight) - 1200;
-            dropYS = Math.floor(Math.random() * 21) + 2;
+      const script = function (p5) {
+        class Drop {
+          dropX = Math.floor(Math.random() * innerWidth);
+          dropY = Math.floor(Math.random() * innerHeight) - 1200;
+          dropYS = Math.floor(Math.random() * 21) + 2;
 
-            fall = () => {
-              // console.log(this.dropYS);
-              this.dropY = this.dropY + this.dropYS;
-              if (this.dropY > innerHeight) {
-                this.dropY = Math.floor(Math.random() * innerHeight) - 1200;
-              }
-              if (eqLine.value[0] > 140) {
-                this.dropYS = Math.floor(Math.random() * 30) + 5;
-              } else {
-                this.dropYS = Math.floor(Math.random() * 15) + 1;
-              }
-            };
-            show = () => {
-              p5.stroke(
-                eqLine.value[28] * 1.8,
-                eqLine.value[32] * 2.1,
-                eqLine.value[34] * 1.7
-              );
-              p5.line(
-                this.dropX,
-                this.dropY,
-                this.dropX,
-                this.dropYS > 10
-                  ? this.dropY +
-                      Math.floor((Math.random() * eqLine.value[7]) / 15) +
-                      5
-                  : this.dropY + Math.floor(Math.random() * 3) + 1
-              );
-            };
-          }
-
-          p5.windowResized = () => {
-            p5.resizeCanvas(innerWidth, innerHeight);
-          };
-
-          p5.setup = () => {
-            let canvas = p5.createCanvas(innerWidth, innerHeight);
-            canvas.parent("p5Canvas");
-          };
-
-          let drops = new Array();
-          for (let i = 0; i < 300; i++) {
-            drops[i] = new Drop();
-          }
-
-          p5.draw = () => {
-            p5.background(30);
-            for (let i = 0; i < drops.length; i++) {
-              drops[i].fall();
-              drops[i].show();
+          fall = () => {
+            // console.log(this.dropYS);
+            this.dropY = this.dropY + this.dropYS;
+            if (this.dropY > innerHeight) {
+              this.dropY = Math.floor(Math.random() * innerHeight) - 1200;
+            }
+            if (eqLine.value[0] > 140) {
+              this.dropYS = Math.floor(Math.random() * 30) + 5;
+            } else {
+              this.dropYS = Math.floor(Math.random() * 15) + 1;
             }
           };
+          show = () => {
+            p5.stroke(
+              eqLine.value[28] * 1.8,
+              eqLine.value[32] * 2.1,
+              eqLine.value[34] * 1.7
+            );
+            p5.line(
+              this.dropX,
+              this.dropY,
+              this.dropX,
+              this.dropYS > 10
+                ? this.dropY +
+                    Math.floor((Math.random() * eqLine.value[7]) / 15) +
+                    5
+                : this.dropY + Math.floor(Math.random() * 3) + 1
+            );
+          };
+        }
+
+        p5.windowResized = () => {
+          p5.resizeCanvas(innerWidth, innerHeight);
         };
-        new p5(script);
-      }
+
+        p5.setup = () => {
+          let canvas = p5.createCanvas(innerWidth, innerHeight);
+          canvas.parent("p5Canvas");
+        };
+
+        let drops = new Array();
+        for (let i = 0; i < 300; i++) {
+          drops[i] = new Drop();
+        }
+
+        p5.draw = () => {
+          p5.background(30);
+          for (let i = 0; i < drops.length; i++) {
+            drops[i].fall();
+            drops[i].show();
+          }
+        };
+      };
+      new p5(script);
     });
 
     return {
