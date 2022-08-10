@@ -368,7 +368,7 @@
                 :key="inddd"
                 class="w-full bg-gray-300 bg-opacity-50 rounded-full"
                 :style="{
-                  height: line - (100 - inddd * 0.2) + '%',
+                  height: line - (100 - inddd * 0.01) + '%',
                   opacity: currentTrackVolume * 150 + '%',
                   filter: ' brightness(' + line * 0.7 + '%) ',
                 }"
@@ -530,12 +530,7 @@
             </div>
           </div>
         </div>
-        <div
-          v-if="currentVisualisation == 'rain'"
-          ref="p5Canvas"
-          id="p5Canvas"
-          class="w-full h-full"
-        >
+        <div ref="p5Canvas" id="p5Canvas" class="w-full h-full">
           <!-- <canvas
             webgl
             width="1920"
@@ -937,11 +932,11 @@ export default {
       this.mouseOverTrack = opt;
     },
     visualizationHandler() {
-      if (this.currentVisualisation == "mesh") {
-        this.currentVisualisation = "rain";
-      } else {
-        this.currentVisualisation = "mesh";
-      }
+      // if (this.currentVisualisation == "mesh") {
+      //   this.currentVisualisation = "rain";
+      // } else {
+      //   this.currentVisualisation = "mesh";
+      // }
     },
   },
   setup() {
@@ -971,7 +966,7 @@ export default {
     const canvas = ref(null);
     const p5Canvas = ref(null);
     const mouseOverTrack = ref(false);
-    const currentVisualisation = ref("rain");
+    const currentVisualisation = ref("terrain");
 
     let wavesurfer;
     let source;
@@ -987,61 +982,110 @@ export default {
 
     onMounted(() => {
       const script = function (p5) {
-        class Drop {
-          dropX = Math.floor(Math.random() * innerWidth);
-          dropY = Math.floor(Math.random() * innerHeight) - 1200;
-          dropYS = Math.floor(Math.random() * 21) + 2;
+        // RAIN VISUALISATION
 
-          fall = () => {
-            // console.log(this.dropYS);
-            this.dropY = this.dropY + this.dropYS;
-            if (this.dropY > innerHeight) {
-              this.dropY = Math.floor(Math.random() * innerHeight) - 1200;
-            }
-            if (eqLine.value[0] > 140) {
-              this.dropYS = Math.floor(Math.random() * 30) + 5;
-            } else {
-              this.dropYS = Math.floor(Math.random() * 15) + 1;
-            }
-          };
-          show = () => {
-            p5.stroke(
-              eqLine.value[28] * 1.8,
-              eqLine.value[32] * 2.1,
-              eqLine.value[34] * 1.7
-            );
-            p5.line(
-              this.dropX,
-              this.dropY,
-              this.dropX,
-              this.dropYS > 10
-                ? this.dropY +
-                    Math.floor((Math.random() * eqLine.value[7]) / 15) +
-                    5
-                : this.dropY + Math.floor(Math.random() * 3) + 1
-            );
-          };
-        }
+        // class Drop {
+        //   dropX = Math.floor(Math.random() * innerWidth);
+        //   dropY = Math.floor(Math.random() * innerHeight) - 1200;
+        //   dropYS = Math.floor(Math.random() * 21) + 2;
 
+        //   fall = () => {
+        //     // console.log(this.dropYS);
+        //     this.dropY = this.dropY + this.dropYS;
+        //     if (this.dropY > innerHeight) {
+        //       this.dropY = Math.floor(Math.random() * innerHeight) - 1200;
+        //     }
+        //     if (eqLine.value[0] > 140) {
+        //       this.dropYS = Math.floor(Math.random() * 30) + 5;
+        //     } else {
+        //       this.dropYS = Math.floor(Math.random() * 15) + 1;
+        //     }
+        //   };
+        //   show = () => {
+        //     p5.stroke(
+        //       eqLine.value[28] * 1.8,
+        //       eqLine.value[32] * 2.1,
+        //       eqLine.value[34] * 1.7
+        //     );
+        //     p5.line(
+        //       this.dropX,
+        //       this.dropY,
+        //       this.dropX,
+        //       this.dropYS > 10
+        //         ? this.dropY +
+        //             Math.floor((Math.random() * eqLine.value[7]) / 15) +
+        //             5
+        //         : this.dropY + Math.floor(Math.random() * 3) + 1
+        //     );
+        //   };
+        // }
+
+        // let drops = new Array();
+        // for (let i = 0; i < 300; i++) {
+        //   drops[i] = new Drop();
+        // }
+
+        // p5.draw = () => {
+        //   p5.background(30);
+        //   for (let i = 0; i < drops.length; i++) {
+        //     drops[i].fall();
+        //     drops[i].show();
+        //   }
+        // };
+
+        // MESH VISUALIZATION
+
+        let s = 30;
+        let col = Math.floor(innerWidth / 1.5 / s);
+        let row = Math.floor((innerHeight * 2.5) / s);
+        let terrain = Array.from(Array(col), () => new Array(row));
+        let fly = 0;
         p5.windowResized = () => {
           p5.resizeCanvas(innerWidth, innerHeight);
         };
 
         p5.setup = () => {
-          let canvas = p5.createCanvas(innerWidth, innerHeight);
+          let canvas = p5.createCanvas(innerWidth, innerHeight, p5.WEBGL);
           canvas.parent("p5Canvas");
         };
 
-        let drops = new Array();
-        for (let i = 0; i < 300; i++) {
-          drops[i] = new Drop();
-        }
-
         p5.draw = () => {
+          fly -= 0.3;
+
+          let yoff = fly;
+          for (let i = 0; i < row; i++) {
+            let xoff = 0;
+            for (let j = 0; j < col; j++) {
+              terrain[j][i] = p5.map(
+                p5.noise(xoff, yoff),
+                0,
+                1,
+                -eqLine.value[10],
+                eqLine.value[0] + eqLine.value[20] / 5
+              );
+              xoff += 0.07;
+            }
+            yoff += 0.07;
+          }
           p5.background(30);
-          for (let i = 0; i < drops.length; i++) {
-            drops[i].fall();
-            drops[i].show();
+          p5.stroke(80 + eqLine.value[0] * 0.5);
+          p5.noFill();
+
+          p5.translate(innerWidth, innerHeight / 2);
+          p5.rotateX(p5.PI / 3);
+          p5.rotateY(-0.05);
+          p5.rotateY(eqLine.value[0] / 1900);
+          p5.translate(
+            -innerWidth * 1.3,
+            -innerHeight * 2.7 - eqLine.value[0] * 2
+          );
+          for (let i = 0; i < row; i++) {
+            p5.beginShape(p5.TRIANGLE_STRIP);
+            for (let j = 0; j < col; j++) {
+              p5.vertex(j * s, i * s, terrain[j][i]);
+              p5.vertex(j * s, (i + 1) * s, terrain[j][i]);
+            }
+            p5.endShape();
           }
         };
       };
