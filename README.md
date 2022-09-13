@@ -8,8 +8,9 @@ ambientroom is a mp3 player with visual graphics and playlist component includin
 It shows waveforms of current track as well as graphic animation based on frequencies of a current sound.
 
 ### Techstack
-* p5.js: 1.4.2
-
+* *vue.js: 3.2.37*
+* *p5.js: 1.4.2*
+* *tailwindcss: 3.0*
 
 
 
